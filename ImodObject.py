@@ -6,6 +6,7 @@ class ImodObject(object):
 
     def __init__(self,
         fid = None,
+        debug = 0,
         name = '',
         nContours = 0,
         flags = 0,
@@ -77,24 +78,24 @@ class ImodObject(object):
         iMesh = 1
         while ( iContour <= self.nContours ) or ( iMesh <= self.nMeshes ):
             datatype = fid.read(4)
-            print datatype
+            if self.debug == 1:
+                print datatype
             if datatype == 'CONT':
-                self.Contours.append(ImodContour(fid))
+                self.Contours.append(ImodContour(fid, debug = self.debug))
                 iContour = iContour + 1
             elif datatype == 'MESH':
-                self.Meshes.append(ImodMesh(fid))
+                self.Meshes.append(ImodMesh(fid, debug = self.debug))
                 iMesh = iMesh + 1
 
         datatype = fid.read(4)
-        print datatype
-
+        if self.debug == 1:
+            print datatype
         if datatype == 'IMAT':
             self.read_imat(fid)
 
         # Read chunk data
         fid.seek(4, 1)
         nChunkBytes = struct.unpack('>l', fid.read(4))[0]
-        print nChunkBytes
         fid.seek(nChunkBytes, 1)
 
         return self

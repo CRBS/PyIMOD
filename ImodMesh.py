@@ -4,6 +4,7 @@ class ImodMesh(object):
 
     def __init__(self,
         fid = None,
+        debug = 0,
         nVertices = 0,
         nIndices = 0,
         flag = 0,

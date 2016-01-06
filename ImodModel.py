@@ -5,6 +5,7 @@ class ImodModel(object):
 
     def __init__(self,
         filename = None,
+        debug = 0,
         fid = 0,
         endianformat = "ieee-be",
         version = "V1.2",
@@ -60,7 +61,10 @@ class ImodModel(object):
     def read_file(self):
         with open(self.filename, mode = "rb") as fid:
             self.fid = fid
-            self.version = fid.read(8)[4:9]
+            data = fid.read(8)
+            if self.debug == 1:
+                print data[0:4]
+            self.version = data[4:9]
             data = fid.read(128)
             self.name = data.rstrip('\0')
             self.xMax = struct.unpack('>l', fid.read(4))[0]
@@ -90,13 +94,18 @@ class ImodModel(object):
             self.beta = struct.unpack('>f', fid.read(4))[0]
             self.gamma = struct.unpack('>f', fid.read(4))[0]
 
+            if self.debug == 2:
+                self.dump()
+
             iObject = 1
             while iObject <= self.nObjects:          
                 data = fid.read(64)
                 datatype = data[0:4]
                 fid.seek(-64, 1)
+                if self.debug == 1:
+                    print datatype
                 if datatype == 'OBJT':
-                    self.Objects.append(ImodObject(self.fid))
+                    self.Objects.append(ImodObject(self.fid, debug = self.debug))
                     iObject = iObject + 1
                 elif datatype == 'IEOF':
                     break
@@ -129,4 +138,6 @@ class ImodModel(object):
         return self
 
     def dump(self):
-        print repr(self.__dict__)
+        from collections import OrderedDict as od
+        for key, value in od(sorted(self.__dict__.items())).iteritems():
+            print key, value
