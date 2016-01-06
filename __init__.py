@@ -1,7 +1,9 @@
-from __future__ import absolute_import
+from ImodModel import ImodModel
+from ImodObject import ImodObject
+from ImodContour import ImodContour
+from ImodWrite import ImodWrite
 
-__import__(__name__+'.utils', globals(), locals()) 
-__import__(__name__+'.imodinfo', globals(), locals())
-__import__(__name__+'.edmod', globals(), locals())
-
-#from utils.check_mrc import check_mrc
+from pyimod import ImodModel
+from pyimod import ImodObject
+from pyimod import ImodContour
+from pyimod import ImodWrite
