@@ -192,7 +192,6 @@ class ImodModel(object):
         ckeep = 0
         while c < self.nObjects:
             if not ops[compStr] (self.Objects[ckeep].nContours, nCont):
-                print "Removing object {0}".format(c+1)
                 del(self.Objects[ckeep]) 
             else:
                 ckeep+=1
