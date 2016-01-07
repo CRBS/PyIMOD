@@ -1,6 +1,9 @@
+from __future__ import division
+
 import struct
 from .ImodContour import ImodContour
 from .ImodMesh import ImodMesh
+from .utils import is_integer, is_string
 
 class ImodObject(object):
 
@@ -125,17 +128,33 @@ class ImodObject(object):
         return self
 
     def setColor(self, color):
-        color = color.split(',')
-        self.red = float(color[0])
-        self.green = float(color[1])
-        self.blue = float(color[2])
+        """
+        Set object color by changing the red, green, and blue variables. The
+        input color variable must be a string in the format 'R,G,B', where R,
+        G, and B range either from 0-1 or 0-255.
+        """
+        is_string(color, 'Color')
+        color = [float(x) for x in color.split(',')]
+        if not ((0 <= color[0] <= 255) and (0 <= color[1] <= 255) and
+            (0 <= color[2] <= 255)):
+            raise ValueError('Color values must range from 0-1 or 0-255.')
+        color = [x if x <= 1 else x/255 for x in color]
+        self.red = color[0]
+        self.green = color[1]
+        self.blue = color[2]
         return self
 
     def setLineWidth(self, width):
+        is_integer(width, 'Line Width')
+        if not (1 <= width <= 10):
+            raise ValueError('Line Width value must range from 1-10.')
         self.lineWidth2D = width
         return self
 
     def setTransparency(self, transp):
+        is_integer(transp, 'Transparency')
+        if not (0 <= transp <= 100):
+            raise ValueError('Transparency value must range from 0-100.')
         self.transparency = transp
         return self
 
