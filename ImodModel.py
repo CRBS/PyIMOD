@@ -201,6 +201,16 @@ class ImodModel(object):
         self.nObjects = len(self.Objects)
         return self
 
+    def removeEmptyContours(self):
+        for iObject in range(0, self.nObjects):
+            self.Objects[iObject].filterByNPoints('>', 0)
+        return self
+
+    def removeSmallContours(self):
+        for iObject in range(0, self.nObjects):
+            self.Objects[iObject].filterByNPoints('>', 2)
+        return self
+
     def dump(self):
         from collections import OrderedDict as od
         for key, value in od(sorted(self.__dict__.items())).iteritems():
