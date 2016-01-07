@@ -40,7 +40,7 @@ def writeModelHeader(imodModel, fid):
     fid.write(struct.pack('>i', imodModel.point))
     fid.write(struct.pack('>i', imodModel.res))
     fid.write(struct.pack('>i', imodModel.thresh))
-    fid.write(struct.pack('>f', imodModel.pixelSize))
+    fid.write(struct.pack('>f', imodModel.pixelSizeXY))
     fid.write(struct.pack('>i', imodModel.units))
     fid.write(struct.pack('>i', imodModel.csum))
     fid.write(struct.pack('>f', imodModel.alpha))

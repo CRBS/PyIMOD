@@ -30,7 +30,8 @@ class ImodModel(object):
         point = 0,
         res = 3,
         thresh = 0,
-        pixelSize = 1,
+        pixelSizeXY = 1,
+        pixelSizeZ = 1,
         units = 0,
         csum = 0,
         alpha = 0,
@@ -45,7 +46,8 @@ class ImodModel(object):
             else:
                 self.filename = filename
                 self.read_file()
-            self.set_unit_string()
+            self.pixelSizeZ = self.zScale * self.pixelSizeXY
+            self.setUnitStr()
 
     def print_header(self):
         print "Filename: {0}".format(self.filename)
@@ -55,7 +57,7 @@ class ImodModel(object):
         print ""
         print "Number of Objects: {0}".format(self.nObjects)
         print "Model Scales: {0} {1} {2}".format(self.xScale, self.yScale, self.zScale)
-        print "Voxel Size (X/Y): {0} {1}".format(self.pixelSize, self.units)
+        print "Voxel Size (X/Y): {0} {1}".format(self.pixelSizeXY, self.units)
         print "Voxel Size (Z): {0} {1}".format(self.pixelSize * self.zScale, self.units)
 
     def read_file(self):
@@ -87,7 +89,7 @@ class ImodModel(object):
             self.point = struct.unpack('>l', fid.read(4))[0]
             self.res = struct.unpack('>l', fid.read(4))[0]
             self.thresh = struct.unpack('>l', fid.read(4))[0]
-            self.pixelSize = struct.unpack('>f', fid.read(4))[0]
+            self.pixelSizeXY = struct.unpack('>f', fid.read(4))[0]
             self.units = struct.unpack('>l', fid.read(4))[0]
             self.csum = struct.unpack('>l', fid.read(4))[0]
             self.alpha = struct.unpack('>f', fid.read(4))[0]
@@ -114,7 +116,7 @@ class ImodModel(object):
         fid.close()
         return self
 
-    def set_unit_string(self):
+    def setUnitStr(self):
         if self.units == 0:
             self.units_str = "pix"
         elif self.units == 3:
@@ -135,6 +137,10 @@ class ImodModel(object):
             self.units_str = "pm"
         else:
             self.units_str = "Unknown"
+        return self
+
+    def setPixelSize(self, pixSize):
+        self.pixelSizeXY = pixSize
         return self
 
     def dump(self):
