@@ -117,30 +117,65 @@ class ImodModel(object):
         return self
 
     def setUnitStr(self):
+        """
+        Sets the unit string according to the integer value read from the file.
+        """
         if self.units == 0:
-            self.units_str = "pix"
+            self.unitStr = "pix"
         elif self.units == 3:
-            self.units_str = "km"
+            self.unitStr = "km"
         elif self.units == 1:
-            self.units_str = "m"
+            self.unitStr = "m"
         elif self.units == -2:
-            self.units_str = "cm"
+            self.unitStr = "cm"
         elif self.units == -3:
-            self.units_str = "mm"
+            self.unitStr = "mm"
         elif self.units == -6:
-            self.units_str = "microns"
+            self.unitStr = "microns"
         elif self.units == -9:
-            self.units_str = "nm"
+            self.unitStr = "nm"
         elif self.units == -10:
-            self.units_str = "Angstroms"
+            self.unitStr = "Angstroms"
         elif self.units == -12:
-            self.units_str = "pm"
+            self.unitStr = "pm"
         else:
-            self.units_str = "Unknown"
+            self.unitStr = "Unknown"
         return self
 
     def setPixelSize(self, pixSize):
-        self.pixelSizeXY = pixSize
+        """
+        Changes the model's pixel size and updaates its zScale accordingly
+        """
+        self.pixelSizeXY = float(pixSize)
+        self.zScale = self.pixelSizeZ / self.pixelSizeXY
+        return self
+
+    def setUnits(self, units):
+        """
+        Changes the model's pixel string and updates its pixel integer ID 
+        accordingly.
+        """
+        self.unitStr = units
+        if self.unitStr == "pix":
+            self.units = 0
+        elif self.unitStr == "km":
+            self.units = 3
+        elif self.unitStr == "m":
+            self.units = 1
+        elif self.unitStr == "cm":
+            self.units = -2
+        elif self.unitStr == "mm":
+            self.units = -3
+        elif self.unitStr == "microns":
+            self.units = -6
+        elif self.unitStr == "nm"
+            self.units = -9
+        elif self.unitStr == "Angstroms":
+            self.units = -10
+        elif self.unitStr = "pm":
+            self.units = -12
+        else
+            self.units = 0
         return self
 
     def dump(self):
