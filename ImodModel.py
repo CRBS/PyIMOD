@@ -116,6 +116,11 @@ class ImodModel(object):
         fid.close()
         return self
 
+    def setAll(self, color):
+        for iObject in range(0, self.nObjects): 
+            self.Objects[iObject].setColor(color)    
+        return self
+
     def setUnitStr(self):
         """
         Sets the unit string according to the integer value read from the file.
@@ -168,13 +173,13 @@ class ImodModel(object):
             self.units = -3
         elif self.unitStr == "microns":
             self.units = -6
-        elif self.unitStr == "nm"
+        elif self.unitStr == "nm":
             self.units = -9
         elif self.unitStr == "Angstroms":
             self.units = -10
-        elif self.unitStr = "pm":
+        elif self.unitStr == "pm":
             self.units = -12
-        else
+        else:
             self.units = 0
         return self
 
