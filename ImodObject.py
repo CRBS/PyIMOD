@@ -42,6 +42,8 @@ class ImodObject(object):
         valwhite = 0,
         matflags2 = 0,
         mat3b3 = 0,
+        chunkID = 0,
+        nChunkBytes = 0,
         **kwargs):
             self.Contours = []
             self.Meshes = []
@@ -73,7 +75,7 @@ class ImodObject(object):
         self.transparency = struct.unpack('>B', fid.read(1))[0]
         self.nMeshes = struct.unpack('>l', fid.read(4))[0]
         self.nSurfaces = struct.unpack('>l', fid.read(4))[0]
-
+ 
         iContour = 1
         iMesh = 1
         while ( iContour <= self.nContours ) or ( iMesh <= self.nMeshes ):
@@ -94,9 +96,14 @@ class ImodObject(object):
             self.read_imat(fid)
 
         # Read chunk data
-        fid.seek(4, 1)
-        nChunkBytes = struct.unpack('>l', fid.read(4))[0]
-        fid.seek(nChunkBytes, 1)
+        self.chunkID = struct.unpack('>i', fid.read(4))[0]
+        self.nChunkBytes = struct.unpack('>l', fid.read(4))[0]
+        fid.seek(self.nChunkBytes, 1)
+        if self.debug == 1:
+            print 'CHUNK', self.nChunkBytes
+
+        if self.debug == 2:
+            self.dump()
 
         return self
 
@@ -118,4 +125,7 @@ class ImodObject(object):
         return self
 
     def dump(self):
-        print repr(self.__dict__)
+        from collections import OrderedDict as od
+        for key, value in od(sorted(self.__dict__.items())).iteritems():
+            print key, value
+        print "\n"

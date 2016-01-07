@@ -5,12 +5,19 @@ def ImodWrite(imodModel, fname):
         writeModelHeader(imodModel, fid)
         for iObject in range(0, imodModel.nObjects):
             writeObjectHeader(imodModel, iObject, fid)
+            for iContour in range(0, imodModel.Objects[iObject].nContours):
+                writeContour(imodModel, iObject, iContour, fid)
+            for iMesh in range(0, imodModel.Objects[iObject].nMeshes):
+                writeMesh(imodModel, iObject, iMesh, fid)
+            writeIMAT(imodModel, iObject, fid)
+            writeChunk(imodModel, iObject, fid)
+        fid.write('IEOF')
         fid.close()
     
 def writeModelHeader(imodModel, fid):
     tag = 'IMOD' + imodModel.version
     nChar = len(imodModel.name)
-    nameStr = imodModel.name + '\0' * (128 - nChar)
+    nameStr = imodModel.name + struct.pack('>B', 0) * (128 - nChar)
     fid.write(tag)
     fid.write(nameStr)
     fid.write(struct.pack('>i', imodModel.xMax))
@@ -41,9 +48,10 @@ def writeModelHeader(imodModel, fid):
     fid.write(struct.pack('>f', imodModel.gamma))
 
 def writeObjectHeader(imodModel, iObject, fid):
-    tag = 'OBJT' + imodModel.Objects[iObject].name
-    nchar = len(tag)
-    tagStr = tag + '\0' * (128 - nChar)
+    fid.write('OBJT')
+    name = imodModel.Objects[iObject].name
+    nChar = len(name)
+    tagStr = name + struct.pack('>B', 0) * (128 - nChar)
     fid.write(tagStr)
     fid.write(struct.pack('>i', imodModel.Objects[iObject].nContours))
     fid.write(struct.pack('>I', imodModel.Objects[iObject].flags))
@@ -64,7 +72,47 @@ def writeObjectHeader(imodModel, iObject, fid):
     fid.write(struct.pack('>i', imodModel.Objects[iObject].nMeshes))
     fid.write(struct.pack('>i', imodModel.Objects[iObject].nSurfaces))
 
+def writeContour(imodModel, iObject, iContour, fid):
+    tagStr = 'CONT'
+    fid.write(tagStr)
+    fid.write(struct.pack('>i', imodModel.Objects[iObject].Contours[iContour].nPoints))
+    fid.write(struct.pack('>I', imodModel.Objects[iObject].Contours[iContour].flags))
+    fid.write(struct.pack('>i', imodModel.Objects[iObject].Contours[iContour].type))
+    fid.write(struct.pack('>i', imodModel.Objects[iObject].Contours[iContour].iSurface))
+    fid.write("".join([struct.pack('>f', x) for x in imodModel.Objects[iObject].Contours[iContour].points]))
 
+def writeMesh(imodModel, iObject, iMesh, fid):
+    tagStr = 'MESH'
+    fid.write(tagStr)
+    fid.write(struct.pack('>i', imodModel.Objects[iObject].Meshes[iMesh].nVertices))
+    fid.write(struct.pack('>i', imodModel.Objects[iObject].Meshes[iMesh].nIndices))
+    fid.write(struct.pack('>I', imodModel.Objects[iObject].Meshes[iMesh].flag))
+    fid.write(struct.pack('>h', imodModel.Objects[iObject].Meshes[iMesh].type))
+    fid.write(struct.pack('>h', imodModel.Objects[iObject].Meshes[iMesh].pad))
+    fid.write("".join([struct.pack('>f', x) for x in imodModel.Objects[iObject].Meshes[iMesh].vertices]))
+    fid.write("".join([struct.pack('>i', x) for x in imodModel.Objects[iObject].Meshes[iMesh].indices]))
 
+def writeIMAT(imodModel, iObject, fid):
+    tagStr = 'IMAT'
+    fid.write(tagStr)
+    fid.write(struct.pack('>i', 16))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].ambient))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].diffuse))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].specular))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].shininess))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].fillred))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].fillgreen))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].fillblue))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].quality))
+    fid.write(struct.pack('>l', imodModel.Objects[iObject].mat2))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].valblack))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].valwhite))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].matflags2))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].mat3b3))
 
+def writeChunk(imodModel, iObject, fid):
+    nChunkBytes = imodModel.Objects[iObject].nChunkBytes
+    fid.write(struct.pack('>i', imodModel.Objects[iObject].chunkID))
+    fid.write(struct.pack('>i', nChunkBytes))
+    fid.write(struct.pack('>B', 0) * nChunkBytes)
 

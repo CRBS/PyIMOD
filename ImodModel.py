@@ -141,3 +141,4 @@ class ImodModel(object):
         from collections import OrderedDict as od
         for key, value in od(sorted(self.__dict__.items())).iteritems():
             print key, value
+        print "\n"
