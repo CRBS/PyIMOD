@@ -158,6 +158,33 @@ class ImodObject(object):
         self.transparency = transp
         return self
 
+    def filterByNPoints(self, compStr, nPoints):
+        is_string(compStr, 'Comparison string')
+        is_integer(nPoints, 'Number of contours')
+        ops = {'>': (lambda x,y: x>y), 
+              '<': (lambda x,y: x<y),
+              '>=': (lambda x,y: x>=y), 
+              '<=': (lambda x,y: x<=y),
+              '=': (lambda x,y: x==y),
+              '==': (lambda x,y: x==y)}
+        if not ops.has_key(compStr):
+            raise ValueError('{0} is not a valid operator'.format(compStr))
+
+        # Loop to check for nContours conditional statement
+        c = 0 
+        ckeep = 0 
+        while c < self.nContours:
+            if not ops[compStr] (self.Contours[ckeep].nPoints, nPoints):
+                print "Removing contour {0}".format(c+1)
+                del(self.Contours[ckeep]) 
+            else:
+                ckeep+=1
+            c+=1
+
+        # Update # of objects
+        self.nContours = len(self.Contours)
+        return self
+
     def dump(self):
         from collections import OrderedDict as od
         for key, value in od(sorted(self.__dict__.items())).iteritems():
