@@ -1,5 +1,6 @@
 import struct
 from .ImodObject import ImodObject
+from .utils import is_integer, is_string
 
 class ImodModel(object):
 
@@ -186,6 +187,40 @@ class ImodModel(object):
             self.units = -12
         else:
             self.units = 0
+        return self
+
+    def filterByNContours(self, compStr, nCont):
+        """
+        Removes all objects that do not satisfy the supplied conditional
+        statement. The operator is specified by compStr, which may be: '>', 
+        '<', '>=', '<=', or '='. The desired number of contours is specified by
+        nCont. For example, (..., '>', 10) would keep only objects that have
+        greater than 10 contours. 
+        """
+        is_string(compStr, 'Comparison string')
+        is_integer(nCont, 'Number of contours')
+        ops = {'>': (lambda x,y: x>y), 
+              '<': (lambda x,y: x<y),
+              '>=': (lambda x,y: x>=y), 
+              '<=': (lambda x,y: x<=y),
+              '=': (lambda x,y: x==y),
+              '==': (lambda x,y: x==y)}
+        if not ops.has_key(compStr):
+            raise ValueError('{0} is not a valid operator'.format(compStr))
+
+        # Loop to check for nContours conditional statement
+        c = 0
+        ckeep = 0
+        while c < self.nObjects:
+            if not ops[compStr] (self.Objects[ckeep].nContours, nCont):
+                print "Removing object {0}".format(c+1)
+                del(self.Objects[ckeep]) 
+            else:
+                ckeep+=1
+            c+=1
+
+        # Update # of objects
+        self.nObjects = len(self.Objects)
         return self
 
     def dump(self):
