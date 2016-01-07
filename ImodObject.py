@@ -124,6 +124,21 @@ class ImodObject(object):
         self.mat3b3 = struct.unpack('>B', fid.read(1))[0]
         return self
 
+    def setColor(self, color):
+        color = color.split(',')
+        self.red = float(color[0])
+        self.green = float(color[1])
+        self.blue = float(color[2])
+        return self
+
+    def setLineWidth(self, width):
+        self.lineWidth2D = width
+        return self
+
+    def setTransparency(self, transp):
+        self.transparency = transp
+        return self
+
     def dump(self):
         from collections import OrderedDict as od
         for key, value in od(sorted(self.__dict__.items())).iteritems():
