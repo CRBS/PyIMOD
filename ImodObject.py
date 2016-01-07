@@ -160,7 +160,7 @@ class ImodObject(object):
 
     def filterByNPoints(self, compStr, nPoints):
         is_string(compStr, 'Comparison string')
-        is_integer(nPoints, 'Number of contours')
+        is_integer(nPoints, 'Number of points')
         ops = {'>': (lambda x,y: x>y), 
               '<': (lambda x,y: x<y),
               '>=': (lambda x,y: x>=y), 
@@ -170,12 +170,11 @@ class ImodObject(object):
         if not ops.has_key(compStr):
             raise ValueError('{0} is not a valid operator'.format(compStr))
 
-        # Loop to check for nContours conditional statement
+        # Loop to check for nPoints conditional statement
         c = 0 
         ckeep = 0 
         while c < self.nContours:
             if not ops[compStr] (self.Contours[ckeep].nPoints, nPoints):
-                print "Removing contour {0}".format(c+1)
                 del(self.Contours[ckeep]) 
             else:
                 ckeep+=1
