@@ -116,9 +116,14 @@ class ImodModel(object):
         fid.close()
         return self
 
-    def setAll(self, color):
+    def setAll(self, color = None, linewidth = None, transparency = None):
         for iObject in range(0, self.nObjects): 
-            self.Objects[iObject].setColor(color)    
+            if color:
+                self.Objects[iObject].setColor(color)
+            if linewidth:
+                self.Objects[iObject].setLineWidth(linewidth)
+            if transparency:
+                self.Objects[iObject].setTransparency(transparency)
         return self
 
     def setUnitStr(self):
