@@ -3,6 +3,9 @@ from .ImodObject import ImodObject
 from .utils import is_integer, is_string
 
 class ImodModel(object):
+    global unitDict
+    unitDict = {'pix': 0, 'km': 3, 'm': 1, 'cm': -2, 'mm': -3, 'microns': -6,
+        'nm': -9, 'Angstroms': -10, 'pm': -12}
 
     def __init__(self,
         filename = None,
@@ -48,18 +51,22 @@ class ImodModel(object):
                 self.filename = filename
                 self.read_file()
             self.pixelSizeZ = self.zScale * self.pixelSizeXY
-            self.setUnitStr()
+            self.setUnitsStr()
 
     def print_header(self):
         print "Filename: {0}".format(self.filename)
         print ""
-        print "Image Dimensions: {0} {1} {2}".format(self.xMax, self.yMax, self.zMax)
-        print "Image Offsets: {0} {1} {2}".format(self.xOffset, self.yOffset, self.zOffset)
+        print "Image Dimensions: {0} {1} {2}".format(self.xMax, self.yMax, 
+            self.zMax)
+        print "Image Offsets: {0} {1} {2}".format(self.xOffset, self.yOffset,
+            self.zOffset)
         print ""
         print "Number of Objects: {0}".format(self.nObjects)
-        print "Model Scales: {0} {1} {2}".format(self.xScale, self.yScale, self.zScale)
+        print "Model Scales: {0} {1} {2}".format(self.xScale, self.yScale,
+            self.zScale)
         print "Voxel Size (X/Y): {0} {1}".format(self.pixelSizeXY, self.units)
-        print "Voxel Size (Z): {0} {1}".format(self.pixelSize * self.zScale, self.units)
+        print "Voxel Size (Z): {0} {1}".format(self.pixelSize * self.zScale,
+            self.units)
 
     def read_file(self):
         with open(self.filename, mode = "rb") as fid:
@@ -108,7 +115,8 @@ class ImodModel(object):
                 if self.debug == 1:
                     print datatype
                 if datatype == 'OBJT':
-                    self.Objects.append(ImodObject(self.fid, debug = self.debug))
+                    self.Objects.append(ImodObject(self.fid,
+                        debug = self.debug))
                     iObject = iObject + 1
                 elif datatype == 'IEOF':
                     break
@@ -127,30 +135,16 @@ class ImodModel(object):
                 self.Objects[iObject].setTransparency(transparency)
         return self
 
-    def setUnitStr(self):
+    def setUnitsStr(self):
         """
         Sets the unit string according to the integer value read from the file.
         """
-        if self.units == 0:
-            self.unitStr = "pix"
-        elif self.units == 3:
-            self.unitStr = "km"
-        elif self.units == 1:
-            self.unitStr = "m"
-        elif self.units == -2:
-            self.unitStr = "cm"
-        elif self.units == -3:
-            self.unitStr = "mm"
-        elif self.units == -6:
-            self.unitStr = "microns"
-        elif self.units == -9:
-            self.unitStr = "nm"
-        elif self.units == -10:
-            self.unitStr = "Angstroms"
-        elif self.units == -12:
-            self.unitStr = "pm"
-        else:
-            self.unitStr = "Unknown"
+        for unitStr, unitInt in unitDict.iteritems():
+            if int(unitInt) == self.units:
+                self.unitsStr = unitStr
+                break
+            else:
+                self.unitsStr = 'Unknown'
         return self
 
     def setPixelSize(self, pixSize):
@@ -166,25 +160,10 @@ class ImodModel(object):
         Changes the model's pixel string and updates its pixel integer ID 
         accordingly.
         """
-        self.unitStr = units
-        if self.unitStr == "pix":
-            self.units = 0
-        elif self.unitStr == "km":
-            self.units = 3
-        elif self.unitStr == "m":
-            self.units = 1
-        elif self.unitStr == "cm":
-            self.units = -2
-        elif self.unitStr == "mm":
-            self.units = -3
-        elif self.unitStr == "microns":
-            self.units = -6
-        elif self.unitStr == "nm":
-            self.units = -9
-        elif self.unitStr == "Angstroms":
-            self.units = -10
-        elif self.unitStr == "pm":
-            self.units = -12
+        is_string(units, 'Units')
+        self.unitsStr = units
+        if unitDict.has_key(units):
+            self.units = unitDict[units]
         else:
             self.units = 0
         return self
