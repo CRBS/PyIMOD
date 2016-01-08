@@ -180,6 +180,30 @@ class ImodObject(object):
         self.transparency = transp
         return self
 
+    def setSymbolType(self, symbolStr):
+        is_string(symbolStr, 'Symbol String')
+        symbDict = {'circle': 0, 'none': 1, 'square': 2, 'triangle': 3, 
+            'star':4}
+        if not symbDict.has_key(symbolStr):
+            raise ValueError('{0} is not a valid symbol type'.format(symbolStr))
+        self.symbol = symbDict[symbolStr]
+        return self
+
+    def setSymbolSize(self, symbolSize):
+        is_integer(symbolSize, 'Symbol Size')
+        if not (1 <= symbolSize <= 100):
+            raise ValueError('Symbol size must be an integer between 1-100')
+        self.symbolSize = symbolSize
+        return self
+
+    def setSymbolFillOn(self):
+        self.symbolFlags = set_bit(self.symbolFlags, 0, 1)
+        return self
+
+    def setSymbolFillOff(self):
+        self.symbolFlags = set_bit(self.symbolFlags, 0, 0)
+        return self 
+
     def filterByNPoints(self, compStr, nPoints):
         is_string(compStr, 'Comparison string')
         is_integer(nPoints, 'Number of points')
