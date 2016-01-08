@@ -3,6 +3,11 @@ from .ImodObject import ImodObject
 from .ImodWrite import ImodWrite
 
 def blankTrainingModel(filename):
+    """
+    Creates a blank model file to be used for generating CHM training images
+    and labels using IMOD. The output model file can be loaded on any MRC
+    file, regardless of size or offsets.
+    """
     # Create ImodModel class and two ImodObject sub-classes
     model = ImodModel()
     model.Objects.append(ImodObject())
