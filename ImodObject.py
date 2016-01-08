@@ -3,7 +3,7 @@ from __future__ import division
 import struct
 from .ImodContour import ImodContour
 from .ImodMesh import ImodMesh
-from .utils import is_integer, is_string
+from .utils import is_integer, is_string, set_bit
 
 class ImodObject(object):
 
@@ -61,7 +61,7 @@ class ImodObject(object):
         self.name = data[4:-1].rstrip('\0')
         fid.seek(68, 1)
         self.nContours = struct.unpack('>l', fid.read(4))[0]
-        self.flags = struct.unpack('>l', fid.read(4))[0]
+        self.flags = struct.unpack('>I', fid.read(4))[0]
         self.axis = struct.unpack('>l', fid.read(4))[0]
         self.drawMode = struct.unpack('>l', fid.read(4))[0]
         self.red = struct.unpack('>f', fid.read(4))[0]
@@ -157,6 +157,21 @@ class ImodObject(object):
             raise ValueError('Name must be between 1-64 characters long.')
         self.name = name
         return self 
+
+    def setObjectType(self, objType):
+        is_string(objType, 'Object Type')
+        if objType == 'scattered':
+            self.flags = set_bit(self.flags, 9, 1)
+            self.flags = set_bit(self.flags, 3, 0)
+        elif objType == 'open':
+            self.flags = set_bit(self.flags, 9, 0)
+            self.flags = set_bit(self.flags, 3, 1)
+        elif objType == 'closed':
+            self.flags = set_bit(self.flags, 9, 0)
+            self.flags = set_bit(self.flags, 3, 0)
+        else:
+            raise ValueError('Invalid object type {0}.'.format(objType))
+        return self
 
     def setTransparency(self, transp):
         is_integer(transp, 'Transparency')
