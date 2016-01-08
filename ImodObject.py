@@ -151,6 +151,13 @@ class ImodObject(object):
         self.lineWidth2D = width
         return self
 
+    def setName(self, name):
+        is_string(name, 'Name')
+        if not (1 <= len(name) <= 64):
+            raise ValueError('Name must be between 1-64 characters long.')
+        self.name = name
+        return self 
+
     def setTransparency(self, transp):
         is_integer(transp, 'Transparency')
         if not (0 <= transp <= 100):
