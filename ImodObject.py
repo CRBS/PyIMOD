@@ -144,6 +144,14 @@ class ImodObject(object):
         self.blue = color[2]
         return self
 
+    def setFilledContoursOutlineOn(self):
+        self.flags = set_bit(self.flags, 26, 1)
+        return self
+
+    def setFilledContoursOutlineOff(self):
+        self.flags = set_bit(self.flags, 26, 0)
+        return self
+
     def setLineWidth(self, width):
         is_integer(width, 'Line Width')
         if not (1 <= width <= 10):
