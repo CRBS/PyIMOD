@@ -3,9 +3,16 @@ from .ImodObject import ImodObject
 from .utils import is_integer, is_string
 
 class ImodModel(object):
-    global unitDict
+    global unitDict, opsDict
     unitDict = {'pix': 0, 'km': 3, 'm': 1, 'cm': -2, 'mm': -3, 'microns': -6,
         'nm': -9, 'Angstroms': -10, 'pm': -12}
+
+    opsDict = {'>': (lambda x,y: x>y),
+          '<': (lambda x,y: x<y),
+          '>=': (lambda x,y: x>=y),
+          '<=': (lambda x,y: x<=y),
+          '=': (lambda x,y: x==y),
+          '==': (lambda x,y: x==y)}
 
     def __init__(self,
         filename = None,
@@ -178,26 +185,84 @@ class ImodModel(object):
         """
         is_string(compStr, 'Comparison string')
         is_integer(nCont, 'Number of contours')
-        ops = {'>': (lambda x,y: x>y), 
-              '<': (lambda x,y: x<y),
-              '>=': (lambda x,y: x>=y), 
-              '<=': (lambda x,y: x<=y),
-              '=': (lambda x,y: x==y),
-              '==': (lambda x,y: x==y)}
-        if not ops.has_key(compStr):
+        if not opsDict.has_key(compStr):
             raise ValueError('{0} is not a valid operator'.format(compStr))
 
         # Loop to check for nContours conditional statement
         c = 0
         ckeep = 0
         while c < self.nObjects:
-            if not ops[compStr] (self.Objects[ckeep].nContours, nCont):
+            if not opsDict[compStr] (self.Objects[ckeep].nContours, nCont):
                 del(self.Objects[ckeep]) 
             else:
                 ckeep+=1
             c+=1
 
         # Update # of objects
+        self.nObjects = len(self.Objects)
+        return self
+
+    def filterByMeshDistance(self, objRef, compStr, d_thresh, **kwargs):
+        """
+        Removes all objects that do not satisfy a distance criterion from a
+        reference mesh. Euclidean distances are computed between the vertices
+        of the reference object and all other objects in the model.
+        
+        Required
+        ========
+        objRef: Reference object, ranging from 1 - self.nObjects
+        compStr: Comparison string in opsDict
+        d_thresh: Distance threshold for removal, whose units are the same as
+                  those specified in self.unitsStr
+
+        Optional
+        ========
+        skip: Vertices to skip in each mesh (e.g. skip = 2 will skip every
+              other vertex). This can be used to save time.
+        """
+        global np
+        import numpy as np
+        from scipy.spatial.distance import cdist
+
+        skip = kwargs.get('skip', 1)
+
+        if not opsDict.has_key(compStr):
+            raise ValueError('{0} is not a valid operator'.format(compStr))
+
+        is_integer(objRef, 'Reference Object')
+        is_string(compStr, 'Comparison String')
+        is_integer(d_thresh, 'Distance')
+   
+        if objRef > self.nObjects:
+            raise valueError('Reference object does not exist within the model.')
+
+        v_ref = get_vertices(self, objRef - 1, skip)
+
+        c = 0 
+        c_keep = 0 
+        while c < self.nObjects:
+            if c == objRef - 1:
+                c+=1
+                c_keep+=1
+                continue
+            v_test = get_vertices(self, c_keep, skip)
+            d_min = float('Inf')
+            for i in range(0, v_test.shape[0] - 1): 
+                d = cdist(v_ref, v_test[[i, i+1]], 'euclidean')
+                d = np.reshape(d, d.shape[0] * d.shape[1], 1)
+                d_min_idx = np.argmin(d)
+                d_min_i = d[d_min_idx]
+                if d_min_i < d_min:
+                    d_min = d_min_i 
+            if not opsDict[compStr] (d_min, d_thresh):
+                del(self.Objects[c_keep])
+                decStr = 'REMOVED'
+            else:
+                c_keep+=1
+                decStr = ''
+            print "{0}. dmin = {1} {2}. {3}".format(str(c+1).zfill(6), d_min, self.unitsStr, decStr)
+            c+=1
+
         self.nObjects = len(self.Objects)
         return self
 
@@ -211,8 +276,33 @@ class ImodModel(object):
             self.Objects[iObject].filterByNPoints('>', 2)
         return self
 
+    def write(self, fname):
+        with open(fname, mode = "wb") as fid:
+            writeModelHeader(imodModel, fid)
+            for iObject in range(0, imodModel.nObjects):
+                writeObjectHeader(imodModel, iObject, fid)
+                for iContour in range(0, imodModel.Objects[iObject].nContours):
+                    writeContour(imodModel, iObject, iContour, fid)
+                for iMesh in range(0, imodModel.Objects[iObject].nMeshes):
+                    writeMesh(imodModel, iObject, iMesh, fid)
+                writeIMAT(imodModel, iObject, fid)
+                writeChunk(imodModel, iObject, fid)
+            fid.write('IEOF')
+            fid.close()
+
+
     def dump(self):
         from collections import OrderedDict as od
         for key, value in od(sorted(self.__dict__.items())).iteritems():
             print key, value
         print "\n"
+
+def get_vertices(model, iObject, skip):
+    if len(model.Objects[iObject].Meshes) > 1:
+        raise valueError('Object {0} has more than 1 mesh'.format(iObject))
+    v = np.array(model.Objects[iObject].Meshes[0].vertices)
+    v = v.reshape(v.shape[0]/3, 3)
+    v = v[0::2]
+    v = v[0::skip]
+    v = np.array([model.pixelSizeXY, model.pixelSizeXY, model.pixelSizeZ] * v)
+    return v
