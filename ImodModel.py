@@ -132,7 +132,11 @@ class ImodModel(object):
         fid.close()
         return self
 
-    def setAll(self, color = None, linewidth = None, transparency = None):
+    def setAll(self, color = None, linewidth = None, transparency = None,
+        name = None):
+        """
+        Changes object properties for all objects in a model file.
+        """
         for iObject in range(0, self.nObjects): 
             if color:
                 self.Objects[iObject].setColor(color)
@@ -140,6 +144,8 @@ class ImodModel(object):
                 self.Objects[iObject].setLineWidth(linewidth)
             if transparency:
                 self.Objects[iObject].setTransparency(transparency)
+            if name:
+                self.Objects[iObject].setName(name)
         return self
 
     def setUnitsStr(self):
@@ -156,7 +162,7 @@ class ImodModel(object):
 
     def setPixelSize(self, pixSize):
         """
-        Changes the model's pixel size and updaates its zScale accordingly
+        Changes the model's pixel size and updates its zScale accordingly
         """
         self.pixelSizeXY = float(pixSize)
         self.zScale = self.pixelSizeZ / self.pixelSizeXY
@@ -220,18 +226,18 @@ class ImodModel(object):
         skip: Vertices to skip in each mesh (e.g. skip = 2 will skip every
               other vertex). This can be used to save time.
         """
-        global np
+        global np, cdist
         import numpy as np
         from scipy.spatial.distance import cdist
 
         skip = kwargs.get('skip', 1)
 
-        if not opsDict.has_key(compStr):
-            raise ValueError('{0} is not a valid operator'.format(compStr))
-
         is_integer(objRef, 'Reference Object')
         is_string(compStr, 'Comparison String')
         is_integer(d_thresh, 'Distance')
+
+        if not opsDict.has_key(compStr):
+            raise ValueError('{0} is not a valid operator'.format(compStr))
    
         if objRef > self.nObjects:
             raise valueError('Reference object does not exist within the model.')
@@ -239,32 +245,67 @@ class ImodModel(object):
         v_ref = get_vertices(self, objRef - 1, skip)
 
         c = 0 
-        c_keep = 0 
+        ckeep = 0 
         while c < self.nObjects:
             if c == objRef - 1:
                 c+=1
-                c_keep+=1
+                ckeep+=1
                 continue
-            v_test = get_vertices(self, c_keep, skip)
-            d_min = float('Inf')
-            for i in range(0, v_test.shape[0] - 1): 
-                d = cdist(v_ref, v_test[[i, i+1]], 'euclidean')
-                d = np.reshape(d, d.shape[0] * d.shape[1], 1)
-                d_min_idx = np.argmin(d)
-                d_min_i = d[d_min_idx]
-                if d_min_i < d_min:
-                    d_min = d_min_i 
+            v_test = get_vertices(self, ckeep, skip)
+            d_min = calc_min_dist(v_ref, v_test)
             if not opsDict[compStr] (d_min, d_thresh):
-                del(self.Objects[c_keep])
+                del(self.Objects[ckeep])
                 decStr = 'REMOVED'
             else:
-                c_keep+=1
+                ckeep+=1
                 decStr = ''
             print "{0}. dmin = {1} {2}. {3}".format(str(c+1).zfill(6), d_min, self.unitsStr, decStr)
             c+=1
 
         self.nObjects = len(self.Objects)
         return self
+
+    def filterByContourDistance(self, objRef, compStr, d_thresh, **kwargs):
+        global np, cdist
+        import numpy as np
+        from scipy.spatial.distance import cdist 
+
+        skip_ref = kwargs.get('skip_ref', 1)
+        skip_cont = kwargs.get('skip_cont', 1)
+
+        is_integer(objRef, 'Reference Object')
+        is_string(compStr, 'Comparison String')
+        is_integer(d_thresh, 'Distance')
+
+        if not opsDict.has_key(compStr):
+            raise ValueError('{0} is not a valid operator'.format(compStr))
+
+        if objRef > self.nObjects:
+            raise valueError('Reference object does not exist within the model.')
+
+        v_ref = get_vertices(self, objRef - 1, skip_ref)
+
+        iObject = 0
+        while iObject < self.nObjects:
+            if iObject == objRef - 1:
+                iObject+=1
+                continue
+            c = 0
+            ckeep = 0
+            while c < self.Objects[iObject].nContours:
+                pts_test = get_points(self, iObject, ckeep, skip_cont)
+                d_min = calc_min_dist(v_ref, pts_test)
+                if not opsDict[compStr] (d_min, d_thresh):
+                    del(self.Objects[iObject].Contours[ckeep])
+                    decStr = 'REMOVED'
+                else:
+                    ckeep+=1
+                    decStr = ''
+                print "{0} {1}. dmin = {2} {3}. {4}".format(str(iObject+1).zfill(6), str(c+1).zfill(6), d_min, self.unitsStr, decStr)
+                c+=1
+            self.Objects[iObject].nContours = len(self.Objects[iObject].Contours)
+            iObject+=1
+        return self      
 
     def removeEmptyContours(self):
         for iObject in range(0, self.nObjects):
@@ -297,6 +338,10 @@ class ImodModel(object):
             print key, value
         print "\n"
 
+"""
+Utilities
+"""
+
 def get_vertices(model, iObject, skip):
     if len(model.Objects[iObject].Meshes) > 1:
         raise valueError('Object {0} has more than 1 mesh'.format(iObject))
@@ -306,3 +351,21 @@ def get_vertices(model, iObject, skip):
     v = v[0::skip]
     v = np.array([model.pixelSizeXY, model.pixelSizeXY, model.pixelSizeZ] * v)
     return v
+
+def get_points(model, iObject, iContour, skip):
+    p = np.array(model.Objects[iObject].Contours[iContour].points)
+    p = p.reshape(p.shape[0]/3, 3)
+    p = p[0::skip]
+    p = np.array([model.pixelSizeXY, model.pixelSizeXY, model.pixelSizeZ] * p)
+    return p
+
+def calc_min_dist(pts_ref, pts_test):
+    d_min = float('Inf')
+    for i in range(0, pts_test.shape[0] - 1):
+        d = cdist(pts_ref, pts_test[[i, i+1]], 'euclidean')
+        d = np.reshape(d, d.shape[0] * d.shape[1], 1)
+        d_min_idx = np.argmin(d)
+        d_min_i = d[d_min_idx]
+        if d_min_i < d_min:
+            d_min = d_min_i
+    return d_min
