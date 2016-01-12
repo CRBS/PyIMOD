@@ -307,7 +307,26 @@ class ImodModel(object):
                 c+=1
             self.Objects[iObject].nContours = len(self.Objects[iObject].Contours)
             iObject+=1
-        return self      
+        return self
+
+    def moveObjects(self, destObj, moveObjs):
+        is_integer(destObj, 'Destination Object')
+        destObj-=1
+        if isinstance(moveObjs, (int, long)):
+            objList = moveObjs
+        else:
+            objList = parse_obj_list(moveObjs)
+        objList.sort()
+        objList = list(reversed(objList))
+        for i in objList:
+            for j in range(0, len(self.Objects[i-1].Contours)):
+                self.Objects[destObj].Contours.append(
+                    self.Objects[i-1].Contours[j])
+            #self.Objects[destObj].Contours.append(self.Objects[i-1].Contours)
+            del(self.Objects[i-1])
+        self.Objects[destObj].nContours = len(self.Objects[destObj].Contours)
+        self.nObjects = len(self.Objects)
+        return self 
 
     def removeEmptyContours(self):
         for iObject in range(0, self.nObjects):
@@ -320,6 +339,10 @@ class ImodModel(object):
         return self
 
     def genSphereObject(self, center, r, N):
+        """
+        Appends a new object to a model, and places a sphere with a specified
+        center, radius, and number of points per contour in this new object.
+        """
         import math
         pi = math.pi
 
@@ -358,7 +381,6 @@ class ImodModel(object):
             fid.write('IEOF')
             fid.close()
 
-
     def dump(self):
         from collections import OrderedDict as od
         for key, value in od(sorted(self.__dict__.items())).iteritems():
@@ -396,3 +418,14 @@ def calc_min_dist(pts_ref, pts_test):
         if d_min_i < d_min:
             d_min = d_min_i
     return d_min
+
+def parse_obj_list(objs):
+    objs = objs.split(',')
+    lst = []
+    for i in objs:
+        splt = [int(x) for x in i.split('-')]
+        if len(splt) == 1:
+            lst.append(splt[0])
+        else:
+            [lst.append(x) for x in range(splt[0], splt[1]+1)]
+    return lst
