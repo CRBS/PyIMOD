@@ -37,7 +37,7 @@ class ImodModel(object):
         zOffset = 0,
         xScale = 0,
         yScale = 0,
-        zScale = 0,
+        zScale = 1,
         object = 0,
         contour = 0,
         point = 0,
