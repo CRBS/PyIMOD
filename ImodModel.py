@@ -170,6 +170,20 @@ class ImodModel(object):
         self.zScale = self.pixelSizeZ / self.pixelSizeXY
         return self
 
+    def setImageSize(self, xMax, yMax, zMax):
+        """
+        Sets the maximum image dimensions (x, y, z) for the model. 
+        """
+        is_integer(xMax, 'xMax')
+        is_integer(yMax, 'yMax')
+        is_integer(zMax, 'zMax')
+        if not all(x > 0 for x in [xMax, yMax, zMax]):
+            raise ValueError('All dimension values must be > 0.')
+        self.xMax = xMax
+        self.yMax = yMax
+        self.zMax = zMax 
+        return self
+
     def setUnits(self, units):
         """
         Changes the model's pixel string and updates its pixel integer ID 
