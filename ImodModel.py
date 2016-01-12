@@ -352,6 +352,31 @@ class ImodModel(object):
             self.Objects[iObject].filterByNPoints('>', 2)
         return self
 
+    def genCubeObject(self, center, dim):
+        self.Objects.append(ImodObject())
+        self.nObjects+=1
+
+        if (dim % 2):
+            zlst = range(-(dim//2), dim//2+1)
+        else:
+            zlst = range(-(dim//2)+1, dim//2+1)
+
+        for z in zlst:
+            self.Objects[-1].Contours.append(ImodContour())
+            pts = []
+            [pts.append(x) for x in [center[0] + dim/2, center[1] + dim/2,
+                center[2] + z]]
+            [pts.append(x) for x in [center[0] + dim/2, center[1] - dim/2,
+                center[2] + z]]
+            [pts.append(x) for x in [center[0] - dim/2, center[1] - dim/2,
+                center[2] + z]]
+            [pts.append(x) for x in [center[0] - dim/2, center[1] + dim/2,
+                center[2] + z]]
+            self.Objects[-1].Contours[-1].points = pts
+            self.Objects[-1].Contours[-1].nPoints = 4
+        self.Objects[-1].nContours = len(zlst)
+        return self 
+
     def genSphereObject(self, center, r, N):
         """
         Appends a new object to a model, and places a sphere with a specified
