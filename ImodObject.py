@@ -1,11 +1,13 @@
 from __future__ import division
 
 import struct
+from itertools import count
 from .ImodContour import ImodContour
 from .ImodMesh import ImodMesh
 from .utils import is_integer, is_string, set_bit
 
 class ImodObject(object):
+    _ids = count(0)
 
     def __init__(self,
         fid = None,
@@ -48,6 +50,7 @@ class ImodObject(object):
         chunkID = 0,
         nChunkBytes = 0,
         **kwargs):
+            self.id = self._ids.next()
             self.Contours = []
             self.Meshes = []
             self.__dict__.update(kwargs)
