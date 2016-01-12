@@ -139,9 +139,15 @@ class ImodModel(object):
         """
         Changes object properties for all objects in a model file.
         """
+        if color:
+            is_string(color, 'RGB color string')
+            rgb = [float(x) for x in color.split(',')]
+            if len(rgb) != 3:
+               raise ValueError('RGB string must have 3 values.')
+
         for iObject in range(0, self.nObjects): 
             if color:
-                self.Objects[iObject].setColor(color)
+                self.Objects[iObject].setColor(rgb[0], rgb[1], rgb[2])
             if linewidth:
                 self.Objects[iObject].setLineWidth(linewidth)
             if transparency:

@@ -127,17 +127,16 @@ class ImodObject(object):
         self.mat3b3 = struct.unpack('>B', fid.read(1))[0]
         return self
 
-    def setColor(self, color):
+    def setColor(self, r, g, b):
         """
         Set object color by changing the red, green, and blue variables. The
         input color variable must be a string in the format 'R,G,B', where R,
         G, and B range either from 0-1 or 0-255.
         """
-        is_string(color, 'Color')
-        color = [float(x) for x in color.split(',')]
-        if not ((0 <= color[0] <= 255) and (0 <= color[1] <= 255) and
-            (0 <= color[2] <= 255)):
+        color = [float(x) for x in [r, g, b]]
+        if not all(0 <= x <= 255 for x in color):
             raise ValueError('Color values must range from 0-1 or 0-255.')
+
         color = [x if x <= 1 else x/255 for x in color]
         self.red = color[0]
         self.green = color[1]
