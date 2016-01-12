@@ -1,5 +1,7 @@
+from __future__ import division
 import struct
 from .ImodObject import ImodObject
+from .ImodContour import ImodContour
 from .utils import is_integer, is_string
 
 class ImodModel(object):
@@ -316,6 +318,31 @@ class ImodModel(object):
         for iObject in range(0, self.nObjects):
             self.Objects[iObject].filterByNPoints('>', 2)
         return self
+
+    def genSphereObject(self, center, r, N):
+        import math
+        pi = math.pi
+
+        self.Objects.append(ImodObject())
+        self.nObjects+=1
+
+        zlst = range(-r+1, r)
+        thetas = [(2*pi*i)/N for i in range(N)]
+
+        for idx, z in enumerate(zlst):
+            self.Objects[-1].Contours.append(ImodContour())
+            phi = math.acos(z/r)
+            pts = []
+            for theta in thetas:
+                x = r * math.sin(phi) * math.cos(theta) + center[0]
+                y = r * math.sin(phi) * math.sin(theta) + center[1]
+                pts.append(float("{0:0.2f}".format(x)))
+                pts.append(float("{0:0.2f}".format(y)))
+                pts.append(float(zlst[idx] + center[2]))
+            self.Objects[-1].Contours[-1].points = pts
+            self.Objects[-1].Contours[-1].nPoints = N
+        self.Objects[-1].nContours = len(zlst)
+        return self 
 
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
