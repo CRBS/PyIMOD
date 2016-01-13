@@ -59,6 +59,8 @@ class ImodObject(object):
             self.__dict__.update(locals())
             if self.fid:
                 self.read_file()
+            else:
+                self.set_color_from_cmap()
 
     def read_file(self):
         fid = self.fid
@@ -131,6 +133,10 @@ class ImodObject(object):
         self.matflags2 = struct.unpack('>B', fid.read(1))[0]
         self.mat3b3 = struct.unpack('>B', fid.read(1))[0]
         return self
+
+    def set_color_from_cmap(self):
+        rgb = self.cmap[str(self.id)]
+        self.setColor(rgb[0], rgb[1], rgb[2])
 
     def setColor(self, r, g, b):
         """
