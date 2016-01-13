@@ -1,8 +1,10 @@
 from __future__ import division
 import os
 import struct
+import subprocess
 from .ImodObject import ImodObject
 from .ImodContour import ImodContour
+from .ImodWrite import ImodWrite
 from .utils import is_integer, is_string
 
 class ImodModel(object):
@@ -424,6 +426,11 @@ class ImodModel(object):
             self.Objects[-1].Contours[-1].points = pts
             self.Objects[-1].Contours[-1].nPoints = N
         self.Objects[-1].nContours = len(zlst)
+
+    def cmd(self, cmdStr):
+        ImodWrite(self, 'tmp.mod')
+        cmd = cmdStr + ' tmp.mod tmp.mod'
+        subprocess.call(cmd.split())
 
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
