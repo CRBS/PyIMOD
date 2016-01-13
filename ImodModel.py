@@ -161,7 +161,6 @@ class ImodModel(object):
                 self.Objects[iObject].setTransparency(transparency)
             if name:
                 self.Objects[iObject].setName(name)
-        return self
 
     def getColormap(self):
         file_cmap = os.path.join(os.path.dirname(__file__), 'colormaps',
@@ -194,7 +193,6 @@ class ImodModel(object):
                 break
             else:
                 self.unitsStr = 'Unknown'
-        return self
 
     def setPixelSize(self, pixSize):
         """
@@ -202,7 +200,6 @@ class ImodModel(object):
         """
         self.pixelSizeXY = float(pixSize)
         self.zScale = self.pixelSizeZ / self.pixelSizeXY
-        return self
 
     def setImageSize(self, xMax, yMax, zMax):
         """
@@ -216,7 +213,6 @@ class ImodModel(object):
         self.xMax = xMax
         self.yMax = yMax
         self.zMax = zMax 
-        return self
 
     def setUnits(self, units):
         """
@@ -229,7 +225,6 @@ class ImodModel(object):
             self.units = unitDict[units]
         else:
             self.units = 0
-        return self
 
     def filterByNContours(self, compStr, nCont):
         """
@@ -256,7 +251,6 @@ class ImodModel(object):
 
         # Update # of objects
         self.nObjects = len(self.Objects)
-        return self
 
     def filterByMeshDistance(self, objRef, compStr, d_thresh, **kwargs):
         """
@@ -313,7 +307,6 @@ class ImodModel(object):
             c+=1
 
         self.nObjects = len(self.Objects)
-        return self
 
     def filterByContourDistance(self, objRef, compStr, d_thresh, **kwargs):
         global np, cdist
@@ -355,7 +348,6 @@ class ImodModel(object):
                 c+=1
             self.Objects[iObject].nContours = len(self.Objects[iObject].Contours)
             iObject+=1
-        return self
 
     def moveObjects(self, destObj, moveObjs):
         is_integer(destObj, 'Destination Object')
@@ -374,20 +366,17 @@ class ImodModel(object):
             del(self.Objects[i-1])
         self.Objects[destObj].nContours = len(self.Objects[destObj].Contours)
         self.nObjects = len(self.Objects)
-        return self 
 
     def removeEmptyContours(self):
         for iObject in range(0, self.nObjects):
             self.Objects[iObject].filterByNPoints('>', 0)
-        return self
 
     def removeSmallContours(self):
         for iObject in range(0, self.nObjects):
             self.Objects[iObject].filterByNPoints('>', 2)
-        return self
 
     def genCubeObject(self, center, dim):
-        self.Objects.append(ImodObject())
+        self.addObject()
         self.nObjects+=1
 
         if (dim % 2):
@@ -409,7 +398,6 @@ class ImodModel(object):
             self.Objects[-1].Contours[-1].points = pts
             self.Objects[-1].Contours[-1].nPoints = 4
         self.Objects[-1].nContours = len(zlst)
-        return self 
 
     def genSphereObject(self, center, r, N):
         """
@@ -419,9 +407,7 @@ class ImodModel(object):
         import math
         pi = math.pi
 
-        self.Objects.append(ImodObject())
-        self.nObjects+=1
-
+        self.addObject()
         zlst = range(-r+1, r)
         thetas = [(2*pi*i)/N for i in range(N)]
 
@@ -438,7 +424,6 @@ class ImodModel(object):
             self.Objects[-1].Contours[-1].points = pts
             self.Objects[-1].Contours[-1].nPoints = N
         self.Objects[-1].nContours = len(zlst)
-        return self 
 
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
