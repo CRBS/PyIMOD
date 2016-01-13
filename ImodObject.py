@@ -1,5 +1,6 @@
 from __future__ import division
 
+import os
 import struct
 from itertools import count
 from .ImodContour import ImodContour
@@ -11,6 +12,7 @@ class ImodObject(object):
 
     def __init__(self,
         fid = None,
+        cmap = {'name': 'imod'},
         debug = 0,
         name = '',
         nContours = 0,
@@ -56,7 +58,7 @@ class ImodObject(object):
             self.__dict__.update(kwargs)
             self.__dict__.update(locals())
             if self.fid:
-                self.read_file()    
+                self.read_file()
 
     def read_file(self):
         fid = self.fid

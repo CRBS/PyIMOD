@@ -1,4 +1,5 @@
 from __future__ import division
+import os
 import struct
 from .ImodObject import ImodObject
 from .ImodContour import ImodContour
@@ -18,6 +19,7 @@ class ImodModel(object):
 
     def __init__(self,
         filename = None,
+        cmap = {'name': 'imod'},
         debug = 0,
         fid = 0,
         endianformat = "ieee-be",
@@ -61,6 +63,7 @@ class ImodModel(object):
                 self.read_file()
             self.pixelSizeZ = self.zScale * self.pixelSizeXY
             self.setUnitsStr()
+            self.getColormap()
 
     def print_header(self):
         print "Filename: {0}".format(self.filename)
@@ -134,6 +137,9 @@ class ImodModel(object):
         fid.close()
         return self
 
+    def addObject(self):
+        self.Objects.append(ImodObject(cmap = self.cmap))
+
     def setAll(self, color = None, linewidth = None, transparency = None,
         name = None):
         """
@@ -155,6 +161,27 @@ class ImodModel(object):
             if name:
                 self.Objects[iObject].setName(name)
         return self
+
+    def getColormap(self):
+        file_cmap = os.path.join(os.path.dirname(__file__), 'colormaps',
+            self.cmap['name'] + '.cmap')
+        C = 0
+        with open(file_cmap, 'r') as fid:
+            for line in fid:
+                self.cmap[str(C)] = line.split()
+                C+=1
+        fid.close()
+
+    def setColormap(self, cmap):
+        is_string(cmap, 'Colormap')
+        file_cmap = os.path.join(os.path.dirname(__file__), 'colormaps',
+            cmap + '.cmap')
+        if not os.path.isfile(file_cmap):
+            raise ValueError('The colormap file {0} does not exist.'.format(
+                file_cmap))
+        del(self.cmap)
+        self.cmap = {'name': cmap}
+        self.getColormap()
 
     def setUnitsStr(self):
         """
