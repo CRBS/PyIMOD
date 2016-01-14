@@ -1,1 +1,2 @@
 # pyimod
+**pyimod** is a set of Python classes that enable the manipulation of [IMOD](http://bio3d.colorado.edu/imod/) model files. **pyimod** supports both the reading/writing of existing model files as well as their generation from scratch. Once initialized, model, object, and contour properties can be easily edited. In addition, a variety of filters exist for separating objects based on size, distance from reference objects, and morphological parameters. **pyimod** was inspired by the [MatTomo](http://bio3d.colorado.edu/imod/matlab.html) set of Matlab classes for IMOD.
