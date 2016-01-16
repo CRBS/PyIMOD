@@ -5,6 +5,7 @@ import subprocess
 from .ImodObject import ImodObject
 from .ImodContour import ImodContour
 from .ImodWrite import ImodWrite
+from .ImodView import ImodView
 from .utils import is_integer, is_string
 
 class ImodModel(object):
@@ -54,8 +55,32 @@ class ImodModel(object):
         alpha = 0,
         beta = 0,
         gamma = 0,
+        view_fovy = 0,
+        view_rad = 4190,
+        view_aspect = 1,
+        view_cnear = 0,
+        view_cfar = 1,
+        view_rot_x = -80,
+        view_rot_y = -2,
+        view_rot_z = -50,
+        view_trans_x = -6262.07958984,
+        view_trans_y = -4235.96142578,
+        view_trans_z = -90.3249206543,
+        view_scale_x = 1,
+        view_scale_y = 1,
+        view_scale_z = 1,
+        view_mat = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        view_world = 2,
+        view_label = 'view 1',
+        view_dcstart = 0,
+        view_dcend = 1,
+        view_lightx = 0,
+        view_lighty = 0,
+        view_plax = 5,
+        view_objvsize = 0,
         **kwargs):
             self.Objects = []
+            self.Views = []
             self.__dict__.update(kwargs)
             self.__dict__.update(locals())
             if filename is None: 
@@ -132,12 +157,45 @@ class ImodModel(object):
                     self.Objects.append(ImodObject(self.fid,
                         debug = self.debug))
                     iObject = iObject + 1
-                elif datatype == 'IEOF':
-                    break
-                elif datatype == 'VIEW':
-                    break
+
+            data = fid.read(4)
+            if data == 'VIEW':
+                self.read_view(fid)
+                for i in range(0, self.view_objvsize):
+                    self.Views.append(ImodView(self.fid))
+
         fid.close()
         return self
+
+    def read_view(self, fid):
+        fid.seek(16, 1)
+        self.view_fovy = struct.unpack('>f', fid.read(4))[0]
+        self.view_rad = struct.unpack('>f', fid.read(4))[0]
+        self.view_aspect = struct.unpack('>f', fid.read(4))[0]
+        self.view_cnear = struct.unpack('>f', fid.read(4))[0]
+        self.view_cfar = struct.unpack('>f', fid.read(4))[0]
+        self.view_rot_x = struct.unpack('>f', fid.read(4))[0]
+        self.view_rot_y = struct.unpack('>f', fid.read(4))[0]
+        self.view_rot_z = struct.unpack('>f', fid.read(4))[0]
+        self.view_trans_x = struct.unpack('>f', fid.read(4))[0]
+        self.view_trans_y = struct.unpack('>f', fid.read(4))[0]
+        self.view_trans_z = struct.unpack('>f', fid.read(4))[0]
+        self.view_scale_x = struct.unpack('>f', fid.read(4))[0]
+        self.view_scale_y = struct.unpack('>f', fid.read(4))[0]
+        self.view_scale_z = struct.unpack('>f', fid.read(4))[0]
+        self.view_mat = []
+        for i in range(0, 16):
+            self.view_mat.append(struct.unpack('>f', fid.read(4))[0])
+        self.view_world = struct.unpack('>i', fid.read(4))[0]
+        data = fid.read(32)
+        self.view_label = data.rstrip('\0')
+        self.view_dcstart = struct.unpack('>f', fid.read(4))[0]
+        self.view_dcend = struct.unpack('>f', fid.read(4))[0]
+        self.view_lightx = struct.unpack('>f', fid.read(4))[0]
+        self.view_lighty = struct.unpack('>f', fid.read(4))[0]
+        self.view_plax = struct.unpack('>f', fid.read(4))[0]
+        self.view_objvsize = struct.unpack('>i', fid.read(4))[0]
+        fid.seek(4, 1)
 
     def addObject(self):
         self.Objects.append(ImodObject(cmap = self.cmap))
