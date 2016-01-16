@@ -196,11 +196,18 @@ class ImodModel(object):
             else:
                 self.unitsStr = 'Unknown'
 
-    def setPixelSize(self, pixSize):
+    def setPixelSizeXY(self, pixSize):
         """
-        Changes the model's pixel size and updates its zScale accordingly
+        Changes the model's XY pixel size and updates its zScale accordingly
         """
         self.pixelSizeXY = float(pixSize)
+        self.zScale = self.pixelSizeZ / self.pixelSizeXY
+
+    def setPixelSizeZ(self, pixSize):
+        """
+        Changes the model's Z pixel size and updates its zScale accordingly
+        """
+        self.pixelSizeZ = float(pixSize)
         self.zScale = self.pixelSizeZ / self.pixelSizeXY
 
     def setImageSize(self, xMax, yMax, zMax):
