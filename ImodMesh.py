@@ -32,4 +32,8 @@ class ImodMesh(object):
         return self
 
     def dump(self):
-        print repr(self.__dict__)
+        from collections import OrderedDict as od
+        for key, value in od(sorted(self.__dict__.items())).iteritems():
+            print key, value
+        print "\n"
+
