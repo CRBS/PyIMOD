@@ -228,6 +228,7 @@ class ImodModel(object):
             specular = self.Objects[-1].specular,
             shininess = self.Objects[-1].shininess))
         self.nObjects+=1
+        self.view_objvsize+=1
 
     def setAll(self, color = None, linewidth = None, transparency = None,
         name = None):

@@ -4,7 +4,7 @@ class ImodView(object):
 
     def __init__(self,
         fid = None,
-        flags = 3328,
+        flags = 0, #3328
         red = 0,
         green = 0,
         blue = 0,
