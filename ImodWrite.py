@@ -14,6 +14,8 @@ def ImodWrite(imodModel, fname):
         writeViewHeader(imodModel, fid)
         for iView in range(0, imodModel.nObjects):
             writeView(imodModel, iView, fid)
+        if imodModel.minx_set:
+            writeMinx(imodModel, fid)
         fid.write('IEOF')
         fid.close()
     
@@ -186,3 +188,13 @@ def writeView(imodModel, iView, fid):
     fid.write(struct.pack('>B', imodModel.Views[iView].mat3b3))
     [fid.write(struct.pack('>f', x)) for x in imodModel.Views[iView].clips_normal]
     [fid.write(struct.pack('>f', x)) for x in imodModel.Views[iView].clips_point] 
+
+def writeMinx(imodModel, fid):
+    fid.write('MINX')
+    fid.write(struct.pack('>i', 72))
+    [fid.write(struct.pack('>f', x)) for x in imodModel.minx_oscale]
+    [fid.write(struct.pack('>f', x)) for x in imodModel.minx_otrans]
+    [fid.write(struct.pack('>f', x)) for x in imodModel.minx_orot]
+    [fid.write(struct.pack('>f', x)) for x in imodModel.minx_cscale]
+    [fid.write(struct.pack('>f', x)) for x in imodModel.minx_ctrans]
+    [fid.write(struct.pack('>f', x)) for x in imodModel.minx_crot]
