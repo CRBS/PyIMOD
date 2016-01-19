@@ -217,6 +217,16 @@ class ImodModel(object):
 
     def addObject(self):
         self.Objects.append(ImodObject(cmap = self.cmap))
+        self.Views.append(ImodView(red = self.Objects[-1].red,
+            green = self.Objects[-1].green,
+            blue = self.Objects[-1].blue,
+            pdrawsize = self.Objects[-1].pdrawsize,
+            linewidth = self.Objects[-1].lineWidth3D,
+            trans = self.Objects[-1].transparency,
+            ambient = self.Objects[-1].ambient,
+            diffuse = self.Objects[-1].diffuse,
+            specular = self.Objects[-1].specular,
+            shininess = self.Objects[-1].shininess))
         self.nObjects+=1
 
     def setAll(self, color = None, linewidth = None, transparency = None,
@@ -492,7 +502,9 @@ class ImodModel(object):
         import math
         pi = math.pi
 
+        # Add ImodObject and ImodView objects
         self.addObject()
+
         zlst = range(-r+1, r)
         thetas = [(2*pi*i)/N for i in range(N)]
 
