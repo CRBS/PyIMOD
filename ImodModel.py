@@ -78,6 +78,7 @@ class ImodModel(object):
         view_lighty = 0,
         view_plax = 5,
         view_objvsize = 0,
+        minx_set = 0,
         **kwargs):
             self.Objects = []
             self.Views = []
@@ -158,14 +159,31 @@ class ImodModel(object):
                         debug = self.debug))
                     iObject = iObject + 1
 
-            data = fid.read(4)
-            if data == 'VIEW':
-                self.read_view(fid)
-                for i in range(0, self.view_objvsize):
-                    self.Views.append(ImodView(self.fid))
+            while True:
+                data = fid.read(4)
+                if self.debug == 1: 
+                    print datatype
+                if data == 'VIEW':
+                    self.read_view(fid)
+                    for i in range(0, self.view_objvsize):
+                        self.Views.append(ImodView(self.fid))
+                elif data == 'MINX':
+                    self.read_minx(fid)
+                elif data == 'IEOF':
+                    break
 
         fid.close()
         return self
+
+    def read_minx(self, fid):
+        self.minx_set = 1
+        fid.seek(4, 1)
+        self.minx_oscale = [struct.unpack('>f', fid.read(4))[0] for x in [0, 1, 2]]
+        self.minx_otrans = [struct.unpack('>f', fid.read(4))[0] for x in [0, 1, 2]]
+        self.minx_orot = [struct.unpack('>f', fid.read(4))[0] for x in [0, 1, 2]]
+        self.minx_cscale = [struct.unpack('>f', fid.read(4))[0] for x in [0, 1, 2]]
+        self.minx_ctrans = [struct.unpack('>f', fid.read(4))[0] for x in [0, 1, 2]]
+        self.minx_crot = [struct.unpack('>f', fid.read(4))[0] for x in [0, 1, 2]]        
 
     def read_view(self, fid):
         fid.seek(16, 1)
