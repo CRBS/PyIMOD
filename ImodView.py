@@ -32,7 +32,7 @@ class ImodView(object):
         quality = 0,
         mat2 = 0,
         valblack = 0,
-        valwhite = 0,
+        valwhite = 255,
         mat3b2 = 0,
         mat3b3 = 0,
         clips_normal = [0, 0, -1] * 5,
@@ -60,9 +60,9 @@ class ImodView(object):
         self.clips_normal_x = struct.unpack('>f', fid.read(4))[0]
         self.clips_normal_y = struct.unpack('>f', fid.read(4))[0]
         self.clips_normal_z = struct.unpack('>f', fid.read(4))[0]
-        self.clips_point_x = struct.unpack('>f', fid.read(4))[0]
-        self.clips_point_y = struct.unpack('>f', fid.read(4))[0]
-        self.clips_point_z = struct.unpack('>f', fid.read(4))[0]
+        self.clips_points_x = struct.unpack('>f', fid.read(4))[0]
+        self.clips_points_y = struct.unpack('>f', fid.read(4))[0]
+        self.clips_points_z = struct.unpack('>f', fid.read(4))[0]
         self.ambient = struct.unpack('>B', fid.read(1))[0]
         self.diffuse = struct.unpack('>B', fid.read(1))[0]
         self.specular = struct.unpack('>B', fid.read(1))[0]
