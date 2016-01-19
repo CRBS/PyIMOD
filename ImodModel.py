@@ -32,9 +32,9 @@ class ImodModel(object):
         yMax = 0,
         zMax = 0,
         nObjects = 0,
-        flags = 0,
+        flags = 0, #0
         drawMode = 1,
-        mouseMode = 0,
+        mouseMode = 2,
         blackLevel = 0,
         whiteLevel = 255,
         xOffset = 0,
@@ -45,7 +45,7 @@ class ImodModel(object):
         zScale = 1,
         object = 0,
         contour = 0,
-        point = 0,
+        point = -1,
         res = 3,
         thresh = 0,
         pixelSizeXY = 1,
@@ -55,6 +55,7 @@ class ImodModel(object):
         alpha = 0,
         beta = 0,
         gamma = 0,
+        view_4bytes = 0,
         view_fovy = 0,
         view_rad = 4190,
         view_aspect = 1,
@@ -116,7 +117,7 @@ class ImodModel(object):
                 print data[0:4]
             self.version = data[4:9]
             data = fid.read(128)
-            self.name = data.rstrip('\0')
+            self.name = data.split('\x00')[0]
             self.xMax = struct.unpack('>l', fid.read(4))[0]
             self.yMax = struct.unpack('>l', fid.read(4))[0]
             self.zMax = struct.unpack('>l', fid.read(4))[0]
@@ -162,14 +163,22 @@ class ImodModel(object):
             while True:
                 data = fid.read(4)
                 if self.debug == 1: 
-                    print datatype
+                    print data
                 if data == 'VIEW':
+                    nViewBytes = struct.unpack('>i', fid.read(4))[0]
+                    if nViewBytes == 4:
+                        self.view_4bytes = 1
+                        self.view_4bytes_cview = struct.unpack('>i', fid.read(4))[0]
+                        continue
                     self.read_view(fid)
                     for i in range(0, self.view_objvsize):
                         self.Views.append(ImodView(self.fid))
                 elif data == 'MINX':
                     self.read_minx(fid)
                 elif data == 'IEOF':
+                    break
+                else:
+                    print data
                     break
 
         fid.close()
@@ -186,7 +195,6 @@ class ImodModel(object):
         self.minx_crot = [struct.unpack('>f', fid.read(4))[0] for x in [0, 1, 2]]        
 
     def read_view(self, fid):
-        fid.seek(16, 1)
         self.view_fovy = struct.unpack('>f', fid.read(4))[0]
         self.view_rad = struct.unpack('>f', fid.read(4))[0]
         self.view_aspect = struct.unpack('>f', fid.read(4))[0]

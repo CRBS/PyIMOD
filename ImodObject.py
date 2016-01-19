@@ -16,7 +16,7 @@ class ImodObject(object):
         debug = 0,
         name = '',
         nContours = 0,
-        flags = 0,
+        flags = 0, 
         axis = 0,
         drawMode = 1,
         red = 0.0,
@@ -46,11 +46,11 @@ class ImodObject(object):
         quality = 0,
         mat2 = 0,
         valblack = 0,
-        valwhite = 0,
+        valwhite = 255,
         matflags2 = 0,
         mat3b3 = 0,
         chunkID = 0,
-        nChunkBytes = 0,
+        nChunkBytes = 76,
         **kwargs):
             self.id = self._ids.next()
             self.Contours = []
@@ -65,7 +65,7 @@ class ImodObject(object):
     def read_file(self):
         fid = self.fid
         data = fid.read(64)
-        self.name = data[4:-1].rstrip('\0')
+        self.name = data[4:-1].split('\x00')[0]
         fid.seek(68, 1)
         self.nContours = struct.unpack('>l', fid.read(4))[0]
         self.flags = struct.unpack('>I', fid.read(4))[0]
@@ -107,7 +107,7 @@ class ImodObject(object):
 
         # Read chunk data
         self.chunkID = struct.unpack('>i', fid.read(4))[0]
-        self.nChunkBytes = struct.unpack('>l', fid.read(4))[0]
+        self.nChunkBytes = struct.unpack('>i', fid.read(4))[0]
         fid.seek(self.nChunkBytes, 1)
         if self.debug == 1:
             print 'CHUNK', self.nChunkBytes

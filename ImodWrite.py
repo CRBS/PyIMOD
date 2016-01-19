@@ -11,11 +11,26 @@ def ImodWrite(imodModel, fname):
                 writeMesh(imodModel, iObject, iMesh, fid)
             writeIMAT(imodModel, iObject, fid)
             writeChunk(imodModel, iObject, fid)
+
+        # Handles the case in which there is a 4 byte VIEW chunk before the 
+        # main VIEW chunk. In this case, write the chunk title ('VIEW'), the
+        # number of bytes (4), and the cview value read from the file.
+        if imodModel.view_4bytes == 1:
+            fid.write('VIEW')
+            fid.write(struct.pack('>i', 4))
+            fid.write(struct.pack('>i', imodModel.view_4bytes_cview))    
+
+        # Write the main VIEW chunk model-level header
         writeViewHeader(imodModel, fid)
+
+        # Write each object's VIEW chunk
         for iView in range(0, imodModel.nObjects):
             writeView(imodModel, iView, fid)
+
+        # Write MINX data, if it has been created or read.
         if imodModel.minx_set:
             writeMinx(imodModel, fid)
+
         fid.write('IEOF')
         fid.close()
     
@@ -122,9 +137,6 @@ def writeChunk(imodModel, iObject, fid):
     fid.write(struct.pack('>B', 0) * nChunkBytes)
 
 def writeViewHeader(imodModel, fid):
-    fid.write('VIEW')
-    fid.write(struct.pack('>i', 4))
-    fid.write(struct.pack('>i', 1))
     fid.write('VIEW')
     fid.write(struct.pack('>i', 184 + imodModel.nObjects * 187))
     fid.write(struct.pack('>f', imodModel.view_fovy)) 
