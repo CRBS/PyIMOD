@@ -71,7 +71,10 @@ def tutorialModel(filename = None):
 
     # Mesh all objects, with capping turned on
     model = ImodCmd(model, 'imodmesh -C')
-  
+ 
+    # Set line widths to 3
+    model.setAll(linewidth = 3)
+ 
     if filename:
         ImodWrite(model, filename)
     else: 
