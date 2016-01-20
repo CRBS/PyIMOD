@@ -99,18 +99,21 @@ class ImodObject(object):
                 self.Meshes.append(ImodMesh(fid, debug = self.debug))
                 iMesh = iMesh + 1
 
-        datatype = fid.read(4)
-        if self.debug == 1:
-            print datatype
-        if datatype == 'IMAT':
-            self.read_imat(fid)
-
-        # Read chunk data
-        self.chunkID = struct.unpack('>i', fid.read(4))[0]
-        self.nChunkBytes = struct.unpack('>i', fid.read(4))[0]
-        fid.seek(self.nChunkBytes, 1)
-        if self.debug == 1:
-            print 'CHUNK', self.nChunkBytes
+        while True:
+            datatype = fid.read(4)
+            if datatype == 'IMAT':
+                if self.debug == 1:
+                    print datatype
+                self.read_imat(fid)
+            elif datatype == 'CHUNK':
+                self.chunkID = struct.unpack('>i', fid.read(4))[0]
+                self.nChunkBytes = struct.unpack('>i', fid.read(4))[0]
+                fid.seek(self.nChunkBytes, 1)
+                if self.debug == 1:
+                    print datatype, self.nChunkBytes
+            else:
+                fid.seek(-4, 1)
+                break
 
         if self.debug == 2:
             self.dump()
