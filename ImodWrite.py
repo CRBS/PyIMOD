@@ -22,11 +22,12 @@ def ImodWrite(imodModel, fname):
             fid.write(struct.pack('>i', imodModel.view_4bytes_cview))    
 
         # Write the main VIEW chunk model-level header
-        writeViewHeader(imodModel, fid)
+        if len(imodModel.Views) > 0:
+            writeViewHeader(imodModel, fid)
 
-        # Write each object's VIEW chunk
-        for iView in range(0, imodModel.nObjects):
-            writeView(imodModel, iView, fid)
+            # Write each object's VIEW chunk
+            for iView in range(0, imodModel.nObjects):
+                writeView(imodModel, iView, fid)
 
         # Write MINX data, if it has been created or read.
         if imodModel.minx_set:
