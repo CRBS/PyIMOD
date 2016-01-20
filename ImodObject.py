@@ -50,7 +50,7 @@ class ImodObject(object):
         matflags2 = 0,
         mat3b3 = 0,
         chunkID = 0,
-        nChunkBytes = 76,
+        nChunkBytes = 0,
         **kwargs):
             self.id = self._ids.next()
             self.Contours = []
@@ -107,7 +107,8 @@ class ImodObject(object):
                 self.read_imat(fid)
             elif datatype == 'MEPA':
                 self.nChunkBytes = struct.unpack('>i', fid.read(4))[0]
-                fid.seek(self.nChunkBytes, 1)
+                data = fid.read(self.nChunkBytes)
+                #fid.seek(self.nChunkBytes, 1)
                 if self.debug == 1:
                     print datatype, self.nChunkBytes
             else:
