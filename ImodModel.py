@@ -480,7 +480,6 @@ class ImodModel(object):
 
     def genCubeObject(self, center, dim):
         self.addObject()
-        self.nObjects+=1
 
         if (dim % 2):
             zlst = range(-(dim//2), dim//2+1)
