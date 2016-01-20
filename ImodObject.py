@@ -105,8 +105,7 @@ class ImodObject(object):
                 if self.debug == 1:
                     print datatype
                 self.read_imat(fid)
-            elif datatype == 'CHUNK':
-                self.chunkID = struct.unpack('>i', fid.read(4))[0]
+            elif datatype == 'MEPA':
                 self.nChunkBytes = struct.unpack('>i', fid.read(4))[0]
                 fid.seek(self.nChunkBytes, 1)
                 if self.debug == 1:

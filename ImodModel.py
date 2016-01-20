@@ -32,7 +32,7 @@ class ImodModel(object):
         yMax = 0,
         zMax = 0,
         nObjects = 0,
-        flags = 0, #13312
+        flags = 62464, #0
         drawMode = 1,
         mouseMode = 2,
         blackLevel = 0,

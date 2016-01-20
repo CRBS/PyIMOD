@@ -10,7 +10,8 @@ def ImodWrite(imodModel, fname):
             for iMesh in range(0, imodModel.Objects[iObject].nMeshes):
                 writeMesh(imodModel, iObject, iMesh, fid)
             writeIMAT(imodModel, iObject, fid)
-            writeChunk(imodModel, iObject, fid)
+            if imodModel.Objects[iObject].nChunkBytes > 0:
+                writeChunk(imodModel, iObject, fid)
 
         # Handles the case in which there is a 4 byte VIEW chunk before the 
         # main VIEW chunk. In this case, write the chunk title ('VIEW'), the
@@ -132,7 +133,7 @@ def writeIMAT(imodModel, iObject, fid):
 
 def writeChunk(imodModel, iObject, fid):
     nChunkBytes = imodModel.Objects[iObject].nChunkBytes
-    fid.write(struct.pack('>i', imodModel.Objects[iObject].chunkID))
+    fid.write('MEPA')
     fid.write(struct.pack('>i', nChunkBytes))
     fid.write(struct.pack('>B', 0) * nChunkBytes)
 
