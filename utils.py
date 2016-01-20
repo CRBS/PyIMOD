@@ -5,13 +5,25 @@ def ImodCmd(imodModel, cmdStr):
     import os
     import random
     import string
+
+    # Set name for temp output to a random 30 character string
     fname = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(30))
+
+    # Write the ImodModel object to disk
     ImodWrite(imodModel, fname)
+
+    # Run the command
     cmd = cmdStr + ' ' + fname + ' ' + fname
     call(cmd.split())
+
+    # Load the output file as an ImodModel object
     imodModel = ImodModel(fname)
+
+    # Cleanup temp files
     os.remove(fname)
-    os.remove(fname + '~')
+    if os.path.isfile(fname + '~'):
+        os.remove(fname + '~')
+
     return imodModel
 
 def is_integer(var, varStr):
