@@ -138,8 +138,11 @@ class ImodObject(object):
         return self
 
     def set_color_from_cmap(self):
-        idx = self.id - ((self.id // (len(self.cmap) - 1)) * (len(self.cmap) - 1))
-        rgb = self.cmap[str(idx)]
+        if len(self.cmap) == 1:
+            rgb = [0, 1, 0]
+        else:
+            idx = self.id - ((self.id // (len(self.cmap) - 1)) * (len(self.cmap) - 1))
+            rgb = self.cmap[str(idx)]
         self.setColor(rgb[0], rgb[1], rgb[2])
 
     def setColor(self, r, g, b):
