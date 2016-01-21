@@ -180,18 +180,6 @@ class ImodModel(object):
                     print data
                     break
 
-        # Append object number and MINX info (where applicable) to ImodObject
-        # and ImodMesh objects.
-        for i in range(0, self.nObjects):
-            self.Objects[i].nObj = i+1
-            if self.minx_set:
-                self.Objects[i].minx_cscale = self.minx_cscale
-                self.Objects[i].minx_ctrans = self.minx_ctrans
-            for j in range(0, self.Objects[i].nMeshes):
-                self.Objects[i].Meshes[j].nObj = i+1
-                if self.minx_set:
-                    self.Objects[i].Meshes[j].minx_cscale = self.minx_cscale
-                    self.Objects[i].Meshes[j].minx_ctrans = self.minx_ctrans
         fid.close()
         return self
 

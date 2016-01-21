@@ -12,9 +12,6 @@ class ImodObject(object):
 
     def __init__(self,
         fid = None,
-        nObj = None,
-        minx_cscale = None,
-        minx_ctrans = None,
         cmap = {'name': 'imod'},
         debug = 0,
         name = '',
