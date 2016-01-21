@@ -180,6 +180,18 @@ class ImodModel(object):
                     print data
                     break
 
+        # Append object number and MINX info (where applicable) to ImodObject
+        # and ImodMesh objects.
+        for i in range(0, self.nObjects):
+            self.Objects[i].nObj = i+1
+            if self.minx_set:
+                self.Objects[i].minx_cscale = self.minx_cscale
+                self.Objects[i].minx_ctrans = self.minx_ctrans
+            for j in range(0, self.Objects[i].nMeshes):
+                self.Objects[i].Meshes[j].nObj = i+1
+                if self.minx_set:
+                    self.Objects[i].Meshes[j].minx_cscale = self.minx_cscale
+                    self.Objects[i].Meshes[j].minx_ctrans = self.minx_ctrans
         fid.close()
         return self
 
@@ -224,18 +236,7 @@ class ImodModel(object):
 
     def addObject(self):
         self.Objects.append(ImodObject(cmap = self.cmap))
-        #self.Views.append(ImodView(red = self.Objects[-1].red,
-        #    green = self.Objects[-1].green,
-        #    blue = self.Objects[-1].blue,
-        #    pdrawsize = self.Objects[-1].pdrawsize,
-        #    linewidth = self.Objects[-1].lineWidth3D,
-        #    trans = self.Objects[-1].transparency,
-        #    ambient = self.Objects[-1].ambient,
-        #    diffuse = self.Objects[-1].diffuse,
-        #    specular = self.Objects[-1].specular,
-        #    shininess = self.Objects[-1].shininess))
         self.nObjects+=1
-        #self.view_objvsize+=1
 
     def setAll(self, color = None, linewidth = None, transparency = None,
         name = None):
