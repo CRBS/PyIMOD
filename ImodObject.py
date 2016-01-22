@@ -160,6 +160,8 @@ class ImodObject(object):
         self.red = color[0]
         self.green = color[1]
         self.blue = color[2]
+        for iView in range(len(self.Views)):
+            self.Views[iView].setColor(color[0], color[1], color[2])
 
     def setFilledContoursOutlineOn(self):
         self.flags = set_bit(self.flags, 26, 1)
@@ -203,6 +205,8 @@ class ImodObject(object):
         if not (0 <= transp <= 100):
             raise ValueError('Transparency value must range from 0-100.')
         self.transparency = transp
+        for iView in range(len(self.Views)):
+            self.Views[iView].setTransparency(transp)
         return self
 
     def setSymbolType(self, symbolStr):
