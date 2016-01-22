@@ -5,7 +5,7 @@
 'Primary Cilium','1 1 1',0,3
 'Nucleus','1 1 0',60,3
 'Nucleolus','0 0 1',0,3
-'Mitochondrion','0 1 1',60,3
+'Mitochondrion','0 1 0',0,3
 'Lysosome','1 0 0',0,3
 'Stigmoid Body','0 1 1',0,3
 'Multivesicular Body','0.2 0 0.8',0,3
