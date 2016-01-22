@@ -1,4 +1,5 @@
 # Object codes for SCN neurons
+# Alex Perez, 2016-01-22
 
 'Name','Color','Transparency','Line Width'
 'Plasma Membrane','1 1 1',60,3
