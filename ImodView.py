@@ -1,4 +1,5 @@
 import struct
+from .utils import is_string, is_integer
 
 class ImodView(object):
 
@@ -82,6 +83,28 @@ class ImodView(object):
         self.clips_point = []
         for i in range(0, 15):
             self.clips_point.append(struct.unpack('>f', fid.read(4))[0])
+        return self
+
+    def setColor(self, r, g, b): 
+        """
+        Set object color by changing the red, green, and blue variables. The
+        input color variable must be a string in the format 'R,G,B', where R,
+        G, and B range either from 0-1 or 0-255.
+        """
+        color = [float(x) for x in [r, g, b]] 
+        if not all(0 <= x <= 255 for x in color):
+            raise ValueError('Color values must range from 0-1 or 0-255.')
+
+        color = [x if x <= 1 else x/255 for x in color]
+        self.red = color[0]
+        self.green = color[1]
+        self.blue = color[2]
+
+    def setTransparency(self, transp):
+        is_integer(transp, 'Transparency')
+        if not (0 <= transp <= 100):
+            raise ValueError('Transparency value must range from 0-100.')
+        self.trans = transp
         return self
 
     def dump(self):
