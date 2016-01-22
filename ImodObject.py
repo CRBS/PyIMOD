@@ -55,6 +55,7 @@ class ImodObject(object):
             self.id = self._ids.next()
             self.Contours = []
             self.Meshes = []
+            self.Views = []
             self.__dict__.update(kwargs)
             self.__dict__.update(locals())
             if self.fid:

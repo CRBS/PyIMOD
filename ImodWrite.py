@@ -22,12 +22,12 @@ def ImodWrite(imodModel, fname):
             fid.write(struct.pack('>i', imodModel.view_4bytes_cview))    
 
         # Write the main VIEW chunk model-level header
-        if len(imodModel.Views) > 0:
+        if imodModel.view_set:
             writeViewHeader(imodModel, fid)
 
             # Write each object's VIEW chunk
-            for iView in range(0, imodModel.nObjects):
-                writeView(imodModel, iView, fid)
+            for iObject in range(imodModel.view_objvsize):
+                writeView(imodModel, iObject, fid)
 
         # Write MINX data, if it has been created or read.
         if imodModel.minx_set:
@@ -168,40 +168,40 @@ def writeViewHeader(imodModel, fid):
     fid.write(struct.pack('>i', imodModel.nObjects)) #objvsize
     fid.write(struct.pack('>i', imodModel.nObjects * 187)) #bytesObjv
 
-def writeView(imodModel, iView, fid):
-    fid.write(struct.pack('>I', imodModel.Views[iView].flags))
-    fid.write(struct.pack('>f', imodModel.Views[iView].red))
-    fid.write(struct.pack('>f', imodModel.Views[iView].green))
-    fid.write(struct.pack('>f', imodModel.Views[iView].blue))
-    fid.write(struct.pack('>i', imodModel.Views[iView].pdrawsize))
-    fid.write(struct.pack('>B', imodModel.Views[iView].linewidth))
-    fid.write(struct.pack('>B', imodModel.Views[iView].linesty))
-    fid.write(struct.pack('>B', imodModel.Views[iView].trans))
-    fid.write(struct.pack('>B', imodModel.Views[iView].clips_count))
-    fid.write(struct.pack('>B', imodModel.Views[iView].clips_flags))
-    fid.write(struct.pack('>B', imodModel.Views[iView].clips_trans))
-    fid.write(struct.pack('>B', imodModel.Views[iView].clips_plane))
-    fid.write(struct.pack('>f', imodModel.Views[iView].clips_normal_x))
-    fid.write(struct.pack('>f', imodModel.Views[iView].clips_normal_y))
-    fid.write(struct.pack('>f', imodModel.Views[iView].clips_normal_z))
-    fid.write(struct.pack('>f', imodModel.Views[iView].clips_points_x))
-    fid.write(struct.pack('>f', imodModel.Views[iView].clips_points_y))
-    fid.write(struct.pack('>f', imodModel.Views[iView].clips_points_z))
-    fid.write(struct.pack('>B', imodModel.Objects[iView].ambient))
-    fid.write(struct.pack('>B', imodModel.Objects[iView].diffuse))
-    fid.write(struct.pack('>B', imodModel.Objects[iView].specular))
-    fid.write(struct.pack('>B', imodModel.Objects[iView].shininess))
-    fid.write(struct.pack('>B', imodModel.Views[iView].fillred))
-    fid.write(struct.pack('>B', imodModel.Views[iView].fillgreen))
-    fid.write(struct.pack('>B', imodModel.Views[iView].fillblue))
-    fid.write(struct.pack('>B', imodModel.Views[iView].quality))
-    fid.write(struct.pack('>I', imodModel.Views[iView].mat2))
-    fid.write(struct.pack('>B', imodModel.Views[iView].valblack))
-    fid.write(struct.pack('>B', imodModel.Views[iView].valwhite))
-    fid.write(struct.pack('>B', imodModel.Views[iView].mat3b2))
-    fid.write(struct.pack('>B', imodModel.Views[iView].mat3b3))
-    [fid.write(struct.pack('>f', x)) for x in imodModel.Views[iView].clips_normal]
-    [fid.write(struct.pack('>f', x)) for x in imodModel.Views[iView].clips_point] 
+def writeView(imodModel, iObject, fid):
+    fid.write(struct.pack('>I', imodModel.Objects[iObject].Views[0].flags))
+    fid.write(struct.pack('>f', imodModel.Objects[iObject].Views[0].red))
+    fid.write(struct.pack('>f', imodModel.Objects[iObject].Views[0].green))
+    fid.write(struct.pack('>f', imodModel.Objects[iObject].Views[0].blue))
+    fid.write(struct.pack('>i', imodModel.Objects[iObject].Views[0].pdrawsize))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].linewidth))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].linesty))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].trans))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].clips_count))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].clips_flags))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].clips_trans))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].clips_plane))
+    fid.write(struct.pack('>f', imodModel.Objects[iObject].Views[0].clips_normal_x))
+    fid.write(struct.pack('>f', imodModel.Objects[iObject].Views[0].clips_normal_y))
+    fid.write(struct.pack('>f', imodModel.Objects[iObject].Views[0].clips_normal_z))
+    fid.write(struct.pack('>f', imodModel.Objects[iObject].Views[0].clips_points_x))
+    fid.write(struct.pack('>f', imodModel.Objects[iObject].Views[0].clips_points_y))
+    fid.write(struct.pack('>f', imodModel.Objects[iObject].Views[0].clips_points_z))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].ambient))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].diffuse))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].specular))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].shininess))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].fillred))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].fillgreen))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].fillblue))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].quality))
+    fid.write(struct.pack('>I', imodModel.Objects[iObject].Views[0].mat2))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].valblack))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].valwhite))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].mat3b2))
+    fid.write(struct.pack('>B', imodModel.Objects[iObject].Views[0].mat3b3))
+    [fid.write(struct.pack('>f', x)) for x in imodModel.Objects[iObject].Views[0].clips_normal]
+    [fid.write(struct.pack('>f', x)) for x in imodModel.Objects[iObject].Views[0].clips_point] 
 
 def writeMinx(imodModel, fid):
     fid.write('MINX')

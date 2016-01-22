@@ -54,6 +54,7 @@ class ImodModel(object):
         alpha = 0,
         beta = 0,
         gamma = 0,
+        view_set = 0,
         view_4bytes = 0,
         view_fovy = 0,
         view_rad = 4190,
@@ -81,7 +82,6 @@ class ImodModel(object):
         minx_set = 0,
         **kwargs):
             self.Objects = []
-            self.Views = []
             self.__dict__.update(kwargs)
             self.__dict__.update(locals())
             if filename is None: 
@@ -165,13 +165,17 @@ class ImodModel(object):
                     print data
                 if data == 'VIEW':
                     nViewBytes = struct.unpack('>i', fid.read(4))[0]
+                    # Handle the case in which IMOD has created a 4 byte VIEW
+                    # chunk, for some unknown reason
                     if nViewBytes == 4:
                         self.view_4bytes = 1
                         self.view_4bytes_cview = struct.unpack('>i', fid.read(4))[0]
                         continue
+                    # Handle all other cases of the VIEW chunk
+                    self.view_set = 1
                     self.read_view(fid)
                     for i in range(0, self.view_objvsize):
-                        self.Views.append(ImodView(self.fid))
+                        self.Objects[i].Views.append(ImodView(self.fid))
                 elif data == 'MINX':
                     self.read_minx(fid)
                 elif data == 'IEOF':
