@@ -518,6 +518,61 @@ class ImodModel(object):
             self.Objects[-1].Contours[-1].nPoints = N
         self.Objects[-1].nContours = len(zlst)
 
+    def setFromTable(self, tname):
+        file_table = os.path.join(os.path.dirname(__file__), 'tables',
+            tname + '.csv')
+        if not os.path.isfile(file_table):
+            raise ValueError('The table file {0} does not exist.'.format(
+                file_table))
+
+        # Create table dictionary from the file
+        td = {}
+        C = 0
+        with open(file_table) as f:
+            for line in f:
+                if not C:
+                    if line[0] != '#' and not line[0].isspace():
+                        line = line.rstrip('\n').split(',')
+                        keys = [parse_name_str(x.replace("'", "")) for x in line]
+                        C+=1
+                    continue
+                line = line.rstrip('\n').split(',')
+                line = [x.replace("'", "") for x in line]
+                td[line[0]] = line[1:]
+        f.close()
+
+        for iObject in range(self.nObjects):
+            if keys[0] == 'name':
+                iName = self.Objects[iObject].name
+                if iName in td:
+                    props = td[iName]
+                    print "Editing object {0} named {1}.".format(iObject, iName)
+                else:
+                    continue
+                for iProp in range(len(props)):
+                    if keys[iProp+1] == 'color':
+                        before = '{0:.2f},{1:.2f},{2:.2f}'.format(
+                            self.Objects[iObject].red,
+                            self.Objects[iObject].green,
+                            self.Objects[iObject].blue)
+                        r, g, b = [float(x) for x in props[iProp].split()]
+                        self.Objects[iObject].setColor(r, g, b)
+                        print "    Color: {0} --> {1:.2f},{2:.2f},{3:.2f}".format(
+                            before, self.Objects[iObject].red, 
+                            self.Objects[iObject].green, self.Objects[iObject].blue)
+                    elif keys[iProp+1] == 'linewidth':
+                        before = self.Objects[iObject].lineWidth2D
+                        lw = int(props[iProp])
+                        self.Objects[iObject].setLineWidth(lw)
+                        print "    Line Width: {0} --> {1}".format(before, 
+                            self.Objects[iObject].lineWidth2D)
+                    elif keys[iProp+1] == 'transparency':
+                        before = self.Objects[iObject].transparency
+                        transp = int(props[iProp])
+                        self.Objects[iObject].setTransparency(transp)
+                        print "    Transparency: {0} --> {1}".format(before,
+                            self.Objects[iObject].transparency)
+
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
             writeModelHeader(imodModel, fid)
@@ -580,3 +635,17 @@ def parse_obj_list(objs):
         else:
             [lst.append(x) for x in range(splt[0], splt[1]+1)]
     return lst
+
+def parse_name_str(nstr):
+    is_string(nstr, 'Name string')
+    nstr = nstr.lower()
+    d = {'name': 'name', 'names': 'name', 'object name': 'name',
+        'object names': 'name', 'color': 'color', 'colors': 'color',
+        'rgb': 'color', 'transparency': 'transparency', 'transp': 
+        'transparency', 'line width': 'linewidth', 'linewidth':
+        'linewidth'}
+
+    if nstr in d:
+        return d[nstr]
+    else:
+        raise ValueError('Invalid name string {0}'.format(nstr))

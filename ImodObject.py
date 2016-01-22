@@ -159,7 +159,6 @@ class ImodObject(object):
         self.red = color[0]
         self.green = color[1]
         self.blue = color[2]
-        return self
 
     def setFilledContoursOutlineOn(self):
         self.flags = set_bit(self.flags, 26, 1)
