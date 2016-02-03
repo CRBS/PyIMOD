@@ -2,6 +2,7 @@ from __future__ import division
 
 import os
 import struct
+import operator
 from itertools import count
 from .ImodContour import ImodContour
 from .ImodMesh import ImodMesh
@@ -258,6 +259,25 @@ class ImodObject(object):
         # Update # of objects
         self.nContours = len(self.Contours)
         return self
+
+    def sortContours(self):
+        # Determine the Z value of each contour.
+        zunique = [] 
+        for i in range(0, self.nContours):
+            zunique_i = list(set(self.Contours[i].points[2::3]))
+            if len(zunique_i) > 1:
+                return self
+            else:
+                zunique_i = zunique_i[0] 
+            zunique.append(zunique_i)
+        # Sort the unique Z values of the object. 
+        zsort = sorted(enumerate(zunique), key = operator.itemgetter(1)) 
+
+        # Re-order the contours accordingly
+        contours_new = []
+        for i in range(0, len(zsort)):
+            contours_new.append(self.Contours[zsort[i][0]])
+        self.Contours = contours_new
 
     def dump(self):
         from collections import OrderedDict as od
