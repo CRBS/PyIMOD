@@ -3,11 +3,8 @@ def ImodCmd(imodModel, cmdStr):
     from .ImodWrite import ImodWrite
     from subprocess import call
     import os
-    import random
-    import string
-
     # Set name for temp output to a random 30 character string
-    fname = rand_filename(30)
+    fname = random_filename(30)
     #fname = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(30))
 
     # Write the ImodModel object to disk
@@ -27,9 +24,10 @@ def ImodCmd(imodModel, cmdStr):
 
     return imodModel
 
-def rand_filename(length):
-    fname = ''.join(random.choice(
-        string.ascii_uppercase + string.digits) for _ in range(length))
+def random_filename(length):
+    import random 
+    import string
+    fname = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
     return fname
 
 def is_integer(var, varStr):
