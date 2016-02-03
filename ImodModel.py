@@ -348,6 +348,10 @@ class ImodModel(object):
         # Update # of objects
         self.nObjects = len(self.Objects)
 
+        # Update # of views
+        if self.view_set:
+            self.view_objvsize = len(self.Objects)
+
     def filterByMeshDistance(self, objRef, compStr, d_thresh, **kwargs):
         """
         Removes all objects that do not satisfy a distance criterion from a
