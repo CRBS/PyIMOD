@@ -7,7 +7,8 @@ def ImodCmd(imodModel, cmdStr):
     import string
 
     # Set name for temp output to a random 30 character string
-    fname = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(30))
+    fname = rand_filename(30)
+    #fname = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(30))
 
     # Write the ImodModel object to disk
     ImodWrite(imodModel, fname)
@@ -25,6 +26,11 @@ def ImodCmd(imodModel, cmdStr):
         os.remove(fname + '~')
 
     return imodModel
+
+def rand_filename(length):
+    fname = ''.join(random.choice(
+        string.ascii_uppercase + string.digits) for _ in range(length))
+    return fname
 
 def is_integer(var, varStr):
     if not isinstance(var, (int, long)):
