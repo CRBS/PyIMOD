@@ -1,4 +1,5 @@
 from __future__ import division
+
 import os
 import struct
 from .ImodObject import ImodObject
@@ -31,7 +32,7 @@ class ImodModel(object):
         yMax = 0,
         zMax = 0,
         nObjects = 0,
-        flags = 15360, #0
+        flags = 15360,
         drawMode = 1,
         mouseMode = 2,
         blackLevel = 0,
@@ -580,6 +581,26 @@ class ImodModel(object):
                         self.Objects[iObject].setTransparency(transp)
                         print "    Transparency: {0} --> {1}".format(before,
                             self.Objects[iObject].transparency)
+
+    def removeBorderObjects(self):
+        cdel = []
+        for iObject in range(0, self.nObjects):
+            for iContour in range(0, self.Objects[iObject].nContours):
+                pts = self.Objects[iObject].Contours[iContour].points
+                if (sum([x < 1 for x in pts[0::3]]) or 
+                    sum([x > self.xMax - 1 for x in pts [0::3]]) or
+                    sum([y < 1 for y in pts[1::3]]) or
+                    sum([y > self.yMax -1 for y in pts [1::3]]) or
+                    (0 in pts[2::3]) or
+                    (self.zMax - 1 in pts[2::3])):
+                    cdel.append(iObject)
+                    break
+        cdel = sorted(cdel, reverse = True)
+        for i in cdel:
+            del(self.Objects[i])
+        self.nObjects -= len(cdel)
+        if self.view_set:
+            self.view_objvsize -= len(cdel)
 
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
