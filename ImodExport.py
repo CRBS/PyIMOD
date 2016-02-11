@@ -22,10 +22,6 @@ def ImodExport(tag, input, **kwargs):
         if input.minx_set:
             scale = input.minx_cscale
             trans = input.minx_ctrans
-    elif objType == 'ImodMesh':
-        mesh = input 
-        name = ''
-        mats = [0.4, 1, 0.498039, 0.0156863, 0]
     else:
         raise ValueError('input is not a valid class type.')
 
