@@ -266,7 +266,6 @@ class ImodObject(object):
         for i in range(0, self.nContours):
             zcoords_i = [round(x) for x in self.Contours[i].points[2::3]]
             zunique_i = list(set(zcoords_i))
-            print zunique_i
             if len(zunique_i) > 1:
                 return self
             else:
