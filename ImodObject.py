@@ -264,7 +264,9 @@ class ImodObject(object):
         # Determine the Z value of each contour.
         zunique = [] 
         for i in range(0, self.nContours):
-            zunique_i = list(set(self.Contours[i].points[2::3]))
+            zcoords_i = [round(x) for x in self.Contours[i].points[2::3]]
+            zunique_i = list(set(zcoords_i))
+            print zunique_i
             if len(zunique_i) > 1:
                 return self
             else:
