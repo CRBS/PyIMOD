@@ -1,9 +1,11 @@
 from __future__ import division
+
+import os
 from .utils import is_string
 
-def ImodExport(tag, input, **kwargs):
+def ImodExport(input, fnameout, **kwargs):
     iObject = kwargs.get('object', 0)
-    is_string(tag, 'Export tag')
+    is_string(fnameout, 'Output filename')
     objType = type(input).__name__
     mats = []
     scale = [1, 1, 1]
@@ -25,8 +27,10 @@ def ImodExport(tag, input, **kwargs):
     else:
         raise ValueError('input is not a valid class type.')
 
-    if tag.lower() == 'vrml' or tag.lower() == 'wrl':
-        export_vrml2(mesh, iObject, name, mats, scale, trans)
+    fext = os.path.splitext(fnameout)[1]
+
+    if fext.lower() == 'vrml' or fext.lower() == 'wrl':
+        export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout)
 
 def get_mesh(imodModel, iObject):
     nObjects = imodModel.nObjects
@@ -38,14 +42,14 @@ def get_mesh(imodModel, iObject):
     mesh = imodModel.Objects[iObject].Meshes[0]
     return mesh
 
-def export_vrml2(mesh, iObject, name, mats, scale, trans):
+def export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout):
     iObject+=1
     zscale = scale[2] / scale[0]
     nameStr = 'obj{0}'.format(iObject)
     if name:
         for x in name.split():
             nameStr = nameStr + '_' + x 
-    fid = open('pyimod.wrl', 'w+')
+    fid = open(fnameout, 'w+')
 
     # Write VRML 2.0 header data
     fid.write('#VRML V2.0 utf8\n')
@@ -115,4 +119,3 @@ def export_vrml2(mesh, iObject, name, mats, scale, trans):
     fid.write('  ]\n')
     fid.write('}\n')
     fid.close()
- 
