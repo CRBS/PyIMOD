@@ -139,6 +139,10 @@ class ImodObject(object):
         self.mat3b3 = struct.unpack('>B', fid.read(1))[0]
         return self
 
+    def addContour(self):
+        self.Contours.append(ImodContour())
+        self.nContours+=1
+
     def set_color_from_cmap(self):
         if len(self.cmap) == 1:
             rgb = [0, 1, 0]
