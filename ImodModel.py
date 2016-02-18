@@ -230,6 +230,12 @@ class ImodModel(object):
     def addObject(self):
         self.Objects.append(ImodObject(cmap = self.cmap))
         self.nObjects+=1
+        if self.view_set:
+            self.Objects[-1].Views.append(ImodView())
+            self.Objects[-1].Views[-1].red = self.Objects[-1].red
+            self.Objects[-1].Views[-1].green = self.Objects[-1].green
+            self.Objects[-1].Views[-1].blue = self.Objects[-1].blue
+            self.view_objvsize+=1
 
     def setAll(self, color = None, linewidth = None, transparency = None,
         name = None):
