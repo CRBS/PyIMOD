@@ -207,6 +207,10 @@ class ImodObject(object):
             self.flags = set_bit(self.flags, 3, 0)
         else:
             raise ValueError('Invalid object type {0}.'.format(objType))
+
+        # Update the ImodView flags
+        if self.Views:
+            self.Views[0].flags = self.flags
         return self
 
     def setTransparency(self, transp):
