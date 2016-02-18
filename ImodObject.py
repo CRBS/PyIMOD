@@ -51,12 +51,14 @@ class ImodObject(object):
         matflags2 = 0,
         mat3b3 = 0,
         chunkID = 0,
-        nChunkBytes = 0,
+        mepa_set = 0,
+        mepa_nBytes = 0,
         **kwargs):
             self.id = self._ids.next()
             self.Contours = []
             self.Meshes = []
             self.Views = []
+            self.mepa_byteString = []
             self.__dict__.update(kwargs)
             self.__dict__.update(locals())
             if self.fid:
@@ -108,11 +110,13 @@ class ImodObject(object):
                     print datatype
                 self.read_imat(fid)
             elif datatype == 'MEPA':
-                self.nChunkBytes = struct.unpack('>i', fid.read(4))[0]
-                data = fid.read(self.nChunkBytes)
-                #fid.seek(self.nChunkBytes, 1)
+                self.mepa_set = 1
+                self.mepa_nBytes = struct.unpack('>i', fid.read(4))[0]
+                for i in range(self.mepa_nBytes):
+                    self.mepa_byteString.append(struct.unpack('>B', 
+                        fid.read(1))[0])
                 if self.debug == 1:
-                    print datatype, self.nChunkBytes
+                    print datatype, self.mepa_nBytes
             else:
                 fid.seek(-4, 1)
                 break
