@@ -29,7 +29,7 @@ def ImodExport(input, fnameout, **kwargs):
 
     fext = os.path.splitext(fnameout)[1]
 
-    if fext.lower() == 'vrml' or fext.lower() == 'wrl':
+    if fext.lower() == '.vrml' or fext.lower() == '.wrl':
         export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout)
 
 def get_mesh(imodModel, iObject):
@@ -119,3 +119,4 @@ def export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout):
     fid.write('  ]\n')
     fid.write('}\n')
     fid.close()
+    print "{0} written.".format(fnameout)
