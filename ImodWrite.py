@@ -164,8 +164,8 @@ def writeViewHeader(imodModel, fid):
     fid.write(struct.pack('>f', imodModel.view_lightx))
     fid.write(struct.pack('>f', imodModel.view_lighty))
     fid.write(struct.pack('>f', imodModel.view_plax))
-    fid.write(struct.pack('>i', imodModel.nObjects)) #objvsize
-    fid.write(struct.pack('>i', imodModel.nObjects * 187)) #bytesObjv
+    fid.write(struct.pack('>i', imodModel.view_objvsize)) #objvsize
+    fid.write(struct.pack('>i', imodModel.view_objvsize * 187)) #bytesObjv
 
 def writeView(imodModel, iObject, fid):
     fid.write(struct.pack('>I', imodModel.Objects[iObject].Views[0].flags))
