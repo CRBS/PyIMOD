@@ -211,7 +211,12 @@ class ImodObject(object):
         # Update the ImodView flags
         if self.Views:
             self.Views[0].flags = self.flags
-        return self
+
+    def setMeshOn(self):
+        self.flags = set_bit(self.flags, 8, 1)
+        self.flags = set_bit(self.flags, 10, 1)
+        if self.Views:
+            self.Views[0].flags = self.flags        
 
     def setTransparency(self, transp):
         is_integer(transp, 'Transparency')
