@@ -268,6 +268,18 @@ class ImodModel(object):
                 C+=1
         fid.close()
 
+    def getScale(self):
+        scale = [1, 1, 1]
+        if self.minx_set:
+            scale = self.minx_cscale
+        return scale
+
+    def getTrans(self):
+        trans = [0, 0, 0]
+        if self.minx_set:
+            trans = self.minx_ctrans
+        return trans
+
     def setColormap(self, cmap):
         is_string(cmap, 'Colormap')
         file_cmap = os.path.join(os.path.dirname(__file__), 'colormaps',
