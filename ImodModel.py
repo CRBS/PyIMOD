@@ -355,8 +355,6 @@ class ImodModel(object):
             raise ValueError('{0} is not a valid operator'.format(compStr))
 
         # Loop to check for nContours conditional statement
-        c = 0
-        ckeep = 0
         for iObj in range(self.nObjects - 1, -1, -1):
             if not opsDict[compStr] (self.Objects[iObj].nContours, nCont):
                 if remove:
@@ -365,19 +363,6 @@ class ImodModel(object):
                     self.Objects[iObj].setColor(1, 0, 0)
             else:
                 if not remove:
-                    self.Objects[iObj].setColor(0, 1, 0)
-
-        #while c < self.nObjects:
-        #    if not opsDict[compStr] (self.Objects[ckeep].nContours, nCont):
-        #        if remove:
-        #            del(self.Objects[ckeep])
-        #        else:
-        #            self.Objects[ckeep].setColor(1, 0, 0) 
-        #    else:
-        #        if not remove:
-        #            self.Objects[ckeep].setColor(0, 1, 0)
-        #        ckeep+=1
-        #    c+=1
 
         # Update # of objects
         self.nObjects = len(self.Objects)
