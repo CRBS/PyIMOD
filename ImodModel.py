@@ -373,12 +373,11 @@ class ImodModel(object):
                 if not remove:
                     self.Objects[iObj].setColor(0, 1, 0)
 
-        # Update # of objects
-        self.nObjects = len(self.Objects)
-
-        # Update # of views
-        if self.view_set:
-            self.view_objvsize = len(self.Objects)
+        # Update # of objects and number of views, if these were changed.
+        if remove:
+            self.nObjects = len(self.Objects)
+            if self.view_set:
+                self.view_objvsize = len(self.Objects)
 
     def filterByMeshDistance(self, objRef, compStr, d_thresh, **kwargs):
         """
@@ -609,11 +608,28 @@ class ImodModel(object):
                         print "    Transparency: {0} --> {1}".format(before,
                             self.Objects[iObject].transparency)
 
-    def removeBorderObjects(self):
+    def removeBorderObjects(self, remove = True):
+        """
+        Removes all objects that contain contours touching either of the 6 bounds
+        of the image stack.
+
+        Input
+        =====
+        remove  - If True (default), will remove objects that touch borders. If
+                  False, will keep all objects, but color those that touch
+                  borders red, and those that do not green.
+        """
+ 
+        # Loop over all objects and contours. Find objects containing contours
+        # that touch either of the 6 borders. Append these object numbers to a
+        # list, cdel for subsequent deletion.
         cdel = []
         for iObject in range(0, self.nObjects):
             for iContour in range(0, self.Objects[iObject].nContours):
                 pts = self.Objects[iObject].Contours[iContour].points
+                # Check if the contour's points contain any that touch either
+                # of the 6 boundaries in x, y, or z. If so, append the object
+                # number to the cdel list.
                 if (sum([x < 1 for x in pts[0::3]]) or 
                     sum([x > self.xMax - 1 for x in pts [0::3]]) or
                     sum([y < 1 for y in pts[1::3]]) or
@@ -622,12 +638,24 @@ class ImodModel(object):
                     (self.zMax - 1 in pts[2::3])):
                     cdel.append(iObject)
                     break
-        cdel = sorted(cdel, reverse = True)
-        for i in cdel:
-            del(self.Objects[i])
-        self.nObjects -= len(cdel)
-        if self.view_set:
-            self.view_objvsize -= len(cdel)
+
+        # Loop over all objects, and remove those that are in cdel. If remove
+        # is False, set the colors appropriately.
+        for iObj in range(self.nObjects -1, -1, -1):
+            if iObj in cdel:
+                if remove:
+                    del(self.Objects[iObj])
+                else:
+                    self.Objects[iObj].setColor(1, 0, 0)
+            else:
+                if not remove:
+                    self.Objects[iObj].setColor(0, 1, 0)
+
+        # Update the number of objects and views, if remove is True.
+        if remove:
+            self.nObjects -= len(cdel)
+            if self.view_set:
+                self.view_objvsize -= len(cdel)
 
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
