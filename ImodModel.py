@@ -341,13 +341,21 @@ class ImodModel(object):
         else:
             self.units = 0
 
-    def filterByNContours(self, compStr, nCont, remove = 1):
+    def filterByNContours(self, compStr, nCont, remove = True):
         """
         Removes all objects that do not satisfy the supplied conditional
         statement. The operator is specified by compStr, which may be: '>', 
         '<', '>=', '<=', or '='. The desired number of contours is specified by
         nCont. For example, (..., '>', 10) would keep only objects that have
         greater than 10 contours. 
+
+        Inputs
+        ======
+        compStr - Comparison string, as described above.
+        nCont   - Number of contours to filter by comparison with compStr.
+        remove  - If True (default), will remove objects that do not meet the
+                  comparison. If False, will keep all objects, but color those
+                  that do not meet the comparison red, and those that do green.
         """
         is_string(compStr, 'Comparison string')
         is_integer(nCont, 'Number of contours')
@@ -363,6 +371,7 @@ class ImodModel(object):
                     self.Objects[iObj].setColor(1, 0, 0)
             else:
                 if not remove:
+                    self.Objects[iObj].setColor(0, 1, 0)
 
         # Update # of objects
         self.nObjects = len(self.Objects)
