@@ -1,3 +1,6 @@
+import subprocess
+import numpy as np
+
 def imodinfo_e(fname, iObj, ncont):
     """
     Runs imodinfo with the -e flag for a given object of the input model file.
@@ -26,8 +29,8 @@ def imodinfo_e(fname, iObj, ncont):
 
     # Initialize an empty array to store metrics in
     M = np.zeros([ncont, 5])
-    data_switch = 0
 
+    data_switch = 0
     C = 1
     for line in proc.stdout:
         # Initialize data storing after the imodinfo header line
@@ -67,3 +70,68 @@ def imodinfo_e(fname, iObj, ncont):
                 C+=1
     return M
 
+def imodinfo_v(fname, iObj, ncont):
+    """
+    Runs imodinfo with the -v flag for a given object of the input model file.
+    This will output a host of metrics for every contour in the object,
+    including: (1) The number of points, (2) the closed length, (3) the open
+    length, (4) the contour enclosed area, (5) the contour's center of mass,
+    (6) the contour's circularity, (7) orientation angle, (8) ellipticity, (9)
+    length, (10) width, (11) aspect ratio, (12) mesh volume, and (13) mesh
+    surface area. Items 1-11 are stored to a numpy array, in which each line 
+    corresponds to the metrics for its numbered contour.
+
+    Inputs
+    ======
+    fname - Filename of the IMOD model file to load.
+    iObj  - Object number to analyze of the file specified by fname.
+    ncont - Number of contours in the object
+
+    Returns
+    =======
+    M      - A numpy array of size (ncont x 13), in which the metrics of each
+             contour are stored to their corresponding numbered lines.
+    volume - Mesh volume of the entire object, given in microns cubed.
+    sa     - Mesh surface area of the entire object, given in microns cubed.
+    """
+
+    # Run the command and get its output
+    cmd = "imodinfo -v -o {0} {1}".format(iObj + 1, fname)
+    proc = subprocess.Popen(cmd.split(), stdout = subprocess.PIPE)
+
+    # Initialize an empty array to store metrics in
+    M = np.zeros([ncont, 13])
+
+    # Loop over all contours, and extract and store their metrics. Volume
+    # and surface area are stored to separate variables, as they are given
+    # for the whole object, rather than individual contours.
+    C = -1
+    for line in proc.stdout:
+        if "CONTOUR" in line:
+            C+=1
+            M[C,0] = line.split()[2] #N points
+        elif "Closed/Open length" in line:
+            M[C,1] = line.split()[3] #Closed length
+            M[C,2] = line.split()[5] #Open length
+        elif "Enclosed Area" in line:
+            M[C,3] = line.split()[3] #Area
+        elif "Center of Mass" in line:
+            M[C,4] = line.split()[4][1:-1] #Centroid X
+            M[C,5] = line.split()[5][0:-1] #Centroid Y
+            M[C,6] = line.split()[6][0:-1] #Centroid Z
+        elif "Circle" in line:
+            M[C,7] = line.split()[2] #Circle
+        elif "Orientation" in line:
+            M[C,8] = line.split()[2] #Orientation
+        elif "Ellipse" in line:
+            M[C,9] = line.split()[2] #Ellipse
+        elif "Length X Width" in line:
+            M[C,10] = line.split()[4] #Length
+            M[C,11] = line.split()[6] #Width
+        elif "Aspect Ratio" in line:
+            M[C,12] = line.split()[3] #Aspect Ratio
+        elif "Total volume inside mesh" in line:
+            volume = float(line.split()[5]) / (1000 ** 3) #Volume
+        elif "Total mesh surface area" in line:
+            sa = float(line.split()[5]) / (1000 ** 2) #Surface Area
+    return M, volume, sa
