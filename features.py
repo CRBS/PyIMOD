@@ -190,7 +190,11 @@ def calc_centroid_3d(iObj, fv):
     """
     Calculates the 3D centroid of the input object, as well as relevant
     metrics, such as the furthest distance from the centroid to the list of
-    contour points. Centroid is calculated as the mean centroid.
+    contour points. Centroid is calculated as the mean centroid. The following
+    values are appended to the input feature vector: (1) Maximum Euclidean
+    distance (in microns) from the centroid to the surface, (2) proportion of
+    slices above the centroid, and (3) proportion of slices below the
+    centroid.
    
     Inputs
     ======
