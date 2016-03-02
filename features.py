@@ -135,3 +135,105 @@ def imodinfo_v(fname, iObj, ncont):
         elif "Total mesh surface area" in line:
             sa = float(line.split()[5]) / (1000 ** 2) #Surface Area
     return M, volume, sa
+
+def calc_delta_centroid(iObj, z, fv):
+    """
+    Analyzes the change in centroid position in (X, Y) across slices, and
+    returns statistics for the whole object. Statistics computed are: (1) the
+    maximum change in Euclidean distance between two slices, (2) the mean # 
+    change across all slices, and (3) the variance of change.
+    
+    Inputs
+    ======
+    iObj - Object number.
+    z    - List of z coordinate of every contour in the object.
+    fv   - Feature vector to append metrics to.
+    
+    Returns
+    =======
+    fv   - Feature vector to append metrics to.
+    """
+
+    xc = []
+    yc = []
+    d = []
+    for i in range(z[0], z[-1] + 1):
+        idx = np.where(z == i)[0]
+        pts = []
+
+        # Get points of all contours at current Z value
+        for j in idx:
+            pts.extend(mod.Objects[iObj].Contours[j].points)
+
+        # Compute centroid components for the current Z value. Append them to
+        # the x and y centroid coordinate lists, xc and yc, respectively.
+        if pts:
+            Npts = int(len(pts) / 3)
+            xci = sum([x * mod.pixelSizeXY / 1000 for x in pts[0::3]]) / Npts
+            yci = sum([y * mod.pixelSizeXY / 1000 for y in pts[1::3]]) / Npts
+        xc.append(xci)
+        yc.append(yci)
+
+        # Compute the Euclidean distance between the (X,Y) centroid coordinates
+        # of successive slices. Append to the distance list, d.
+        if len(xc) > 1:
+            d.append(math.sqrt((xc[-1] - xc[-2]) ** 2 + (yc[-1] - yc[-2]) ** 2))
+
+    # Append the maximum distance, mean distance, and variance of distance to
+    # the feature vector.
+    fv.append(np.max(d))
+    fv.append(np.mean(d))
+    fv.append(np.var(d))
+    return fv
+
+def calc_centroid_3d(iObj, fv):
+    """
+    Calculates the 3D centroid of the input object, as well as relevant
+    metrics, such as the furthest distance from the centroid to the list of
+    contour points. Centroid is calculated as the mean centroid.
+   
+    Inputs
+    ======
+    iObj - Object number.
+    fv   - Feature vector to append metrics to.
+   
+    Returns
+    =======
+    fv - Feature vector with metrics appended.
+    """
+
+    # Get a list of all points in the object
+    ncont = mod.Objects[iObj].nContours
+    pts = []
+    for iCont in range(ncont):
+        pts.extend(mod.Objects[iObj].Contours[iCont].points)
+    npts = int(len(pts) / 3)
+    ptsx = [x * mod.pixelSizeXY / 1000 for x in pts[0::3]]
+    ptsy = [y * mod.pixelSizeXY / 1000 for y in pts[1::3]]
+    ptsz = [z * mod.pixelSizeZ / 1000 for z in pts[2::3]]
+
+    # Compute the 3D centroid of the entire object
+    xci = sum(ptsx) / npts
+    yci = sum(ptsy) / npts
+    zci = sum(ptsz) / npts
+
+    # Compute the maximum distance
+    d = []
+    for iPt in range(npts):
+        dx = (ptsx[iPt] - xci) ** 2
+        dy = (ptsy[iPt] - yci) ** 2
+        dz = (ptsz[iPt] - zci) ** 2
+        d.append(math.sqrt(dx + dy + dz))
+
+    # Compute the proportion of slices above and below the centroid slice
+    idx1 = np.where(np.asarray(ptsz) > zci)[0]
+    idx2 = np.where(np.asarray(ptsz) < zci)[0]
+    nzabove = len(np.unique(np.asarray(ptsz)[idx1]))
+    nzbelow = len(np.unique(np.asarray(ptsz)[idx2]))
+    pzabove = nzabove / (nzabove + nzbelow + 1)
+    pzbelow = nzbelow / (nzabove + nzbelow + 1)
+
+    fv.append(np.max(d))
+    fv.append(pzabove)
+    fv.append(pzbelow)
+    return fv
