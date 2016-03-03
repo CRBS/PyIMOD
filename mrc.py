@@ -1,10 +1,30 @@
 import struct
-import timeit
-import cv2 
 
 import numpy as np
 
-def run_slice(fname, nSlice):
+def get_dims(fname):
+    """
+    Returns the X, Y, and Z dimensions of the input MRC file.
+
+    Inputs
+    ======
+    fname - Filename of the MRC file.
+
+    Returns
+    =======
+    nx - Max X dimension.
+    ny - Max Y dimension.
+    nz - Max Z dimension.
+    """
+
+    with open(fname, mode = "rb") as fid:
+        # Read the image dimensions, nx, ny, and nz from the MRC file header
+        nx = struct.unpack('<i', fid.read(4))[0]
+        ny = struct.unpack('<i', fid.read(4))[0]
+        nz = struct.unpack('<i', fid.read(4))[0]
+    return nx, ny, nz
+
+def get_slice(fname, nSlice):
     """
     Returns a numpy array consisting of a given slice of an input MRC file.
 
@@ -18,12 +38,9 @@ def run_slice(fname, nSlice):
     imgSlice - Numpy array of the MRC slice.
     """
 
-    with open(fname, mode = "rb") as fid:
-        # Read the image dimensions, nx, ny, and nz from the MRC file header
-        nx = struct.unpack('<i', fid.read(4))[0]
-        ny = struct.unpack('<i', fid.read(4))[0]
-        nz = struct.unpack('<i', fid.read(4))[0]
+    nx, ny, nz = get_dims(fname)
 
+    with open(fname, mode = "rb") as fid:
         # Seek to the proper location in the binary file
         fid.seek(1024 + (nx * ny) * (nSlice - 1) ,0) 
 
@@ -37,4 +54,4 @@ def run_slice(fname, nSlice):
     # between Numpy and IMOD.
     imgSlice = np.flipud(imgSlice)
 
-    return imgSlice    
+    return imgSlice
