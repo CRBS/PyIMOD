@@ -12,6 +12,7 @@ import glob
 import numpy as np
 import multiprocessing as mp
 
+from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 
 def imodinfo_e(fname, iObj, ncont):
@@ -336,11 +337,13 @@ if __name__ == '__main__':
     # Load features 
     fv = np.loadtxt('features.csv', dtype = 'float', delimiter = ',')
 
+    # Standardize features to mean zero and variance one
+    fv = StandardScaler().fit_transform(fv)
+
     # Run clustering
     print "Running k-means clustering with N = 2." 
-    kmeans = KMeans(n_clusters = 2)
-    c = kmeans.fit_predict(fv)
-    idx = np.where(c)[0]
+    kmeans = KMeans(n_clusters = 2).fit_predict(fv)
+    idx = np.where(kmeans)[0]
     print idx 
 
     # Manipulate objects according to clustering
