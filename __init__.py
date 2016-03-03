@@ -5,4 +5,5 @@ from ImodMesh import ImodMesh
 from ImodWrite import ImodWrite
 from ImodExport import ImodExport
 from ImodGen import *
+from mrc import *
 from utils import ImodCmd
