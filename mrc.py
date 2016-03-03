@@ -24,6 +24,33 @@ def get_dims(fname):
         nz = struct.unpack('<i', fid.read(4))[0]
     return nx, ny, nz
 
+def mrc_to_numpy(fid, nx, ny):
+    """
+    Given the file ID of an open MRC file and the file's dimensions, return 
+    the current slice as a Numpy array.
+
+    Inputs
+    ======
+    fid - File ID of a MRC file, opened in binary reading mode.
+    nx  - Maximum X dimension.
+    ny  - Maximum Y dimension.
+
+    Returns
+    =======
+    imgSlice - A Numpy array of the MRC slice.
+    """
+    # Get the Numpy array, assuming the MRC file is 8-bit, unsigned integer
+    imgSlice = np.fromfile(fid, dtype = np.uint8, count = nx * ny)
+
+    # Reshape the Numpy array into the proper dimensions
+    imgSlice = np.reshape(imgSlice, [ny, nx])
+
+    # Flip the Numpy array vertically to account for the difference in indexing
+    # between Numpy and IMOD.
+    imgSlice = np.flipud(imgSlice)
+
+    return imgSlice
+
 def get_slice(fname, nSlice):
     """
     Returns a numpy array consisting of a given slice of an input MRC file.
@@ -35,7 +62,7 @@ def get_slice(fname, nSlice):
 
     Returns
     =======
-    imgSlice - Numpy array of the MRC slice.
+    imgSlice - A Numpy array of the MRC slice.
     """
 
     nx, ny, nz = get_dims(fname)
@@ -44,14 +71,6 @@ def get_slice(fname, nSlice):
         # Seek to the proper location in the binary file
         fid.seek(1024 + (nx * ny) * (nSlice - 1) ,0) 
 
-        # Get the Numpy array, assuming the MRC file is 8-bit, unsigned
-        imgSlice = np.fromfile(fid, dtype = np.uint8, count = nx * ny) 
-
-    # Reshape the Numpy array into the proper dimensions
-    imgSlice = np.reshape(imgSlice, [ny, nx])
-
-    # Flip the Numpy array vertically to account for the difference in indexing
-    # between Numpy and IMOD.
-    imgSlice = np.flipud(imgSlice)
-
+        # Get the image slice as a Numpy array
+        imgSlice = mrc_to_numpy(fid, nx, ny)
     return imgSlice
