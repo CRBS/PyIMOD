@@ -2,10 +2,12 @@ from __future__ import division
 
 import os
 import struct
+import cv2
 from .ImodObject import ImodObject
 from .ImodContour import ImodContour
 from .ImodWrite import ImodWrite
 from .ImodView import ImodView
+from .mrc import get_slice
 from .utils import is_integer, is_string
 
 class ImodModel(object):
@@ -608,16 +610,32 @@ class ImodModel(object):
                         print "    Transparency: {0} --> {1}".format(before,
                             self.Objects[iObject].transparency)
 
-    def removeBorderObjects(self, remove = True):
+    def removeBorderObjects(self, remove = True, fname = ''):
         """
-        Removes all objects that contain contours touching either of the 6 bounds
-        of the image stack.
+        Removes all objects that contain contours touching either of the 6 
+        bounds of the image stack. If the filename of an MRC file is supplied
+        to the fname argument, a more rigorous search for boundary objects 
+        will be performed such that objects that are touching alignment-
+        induced borders will be removed. This on a slice-by-slice basis,
+        sequentially over all slices as follows:
+            1. Initialize a Numpy array of the current MRC slice.
+            2. Compute the Sobel gradient magnitude of the image.
+            3. Threshold the gradient magnitude, keeping only small values
+               (e.g. values <= 1). These pixels are likely to correspond to
+               borders, which have constant pixel value across the image.
+            4. Compute the distance transform (DT) of the thresholded gradient
+               magnitude.
+            5. Loop over all objects in the model file. Find contours that are
+               on the given slice. Test the value of DT at each point. If the
+               value is very small (e.g. <= 3), assume the point is on or over
+               the border and remove the object.
 
         Input
         =====
         remove  - If True (default), will remove objects that touch borders. If
                   False, will keep all objects, but color those that touch
                   borders red, and those that do not green.
+        fname   - Filename of MRC for alignment-induced border removal.
         """
  
         # Loop over all objects and contours. Find objects containing contours
@@ -656,6 +674,12 @@ class ImodModel(object):
             self.nObjects -= len(cdel)
             if self.view_set:
                 self.view_objvsize -= len(cdel)
+
+        # Run alignment-induced border removal, if desired
+        if fname:
+            for nSlice in range(self.xMax): 
+                img = get_slice(fname, nSlice + 1)
+                print nSlice+1, img.shape
 
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
