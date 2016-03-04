@@ -2,12 +2,16 @@ from __future__ import division
 
 import os
 import struct
+import time
 import cv2
+
+import numpy as np
+
 from .ImodObject import ImodObject
 from .ImodContour import ImodContour
 from .ImodWrite import ImodWrite
 from .ImodView import ImodView
-from .mrc import get_slice
+from .mrc import get_dims, mrc_to_numpy
 from .utils import is_integer, is_string
 
 class ImodModel(object):
@@ -677,9 +681,28 @@ class ImodModel(object):
 
         # Run alignment-induced border removal, if desired
         if fname:
-            for nSlice in range(self.xMax): 
-                img = get_slice(fname, nSlice + 1)
-                print nSlice+1, img.shape
+            nx, ny, nz = get_dims(fname)
+            fid = open(fname, mode = "rb")
+            fid.seek(1024, 0)
+            for iSlice in range(nz):
+                tic = time.clock()
+                # Get slice from the MRC stack
+                img = mrc_to_numpy(fid, nx, ny)
+
+                # Get the distance transform
+                dt = proc_border(img)
+                toc = time.clock()
+               
+                print "Slice {0} processed. Elapsed time: {1} seconds.".format(
+                    iSlice + 1, toc - tic)
+
+                for iObj in self.nObjects:
+                
+
+
+            fid.close()
+
+
 
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
@@ -757,3 +780,31 @@ def parse_name_str(nstr):
         return d[nstr]
     else:
         raise ValueError('Invalid name string {0}'.format(nstr))
+
+def proc_border(img):
+    # Compute horizontal Sobel gradient
+    sobelx = cv2.Sobel(img, cv2.CV_64F, 1, 0)
+    sobelx = np.absolute(sobelx)
+
+    # Compute vertical Sobel gradient
+    sobely = cv2.Sobel(img, cv2.CV_64F, 0, 1)
+    sobely = np.absolute(sobely)
+
+    # Compute gradient magnitude image
+    mag = np.sqrt(sobelx ** 2 + sobely ** 2)  
+    mag = np.uint8(mag)
+    del(img, sobelx, sobely)
+
+    # Threhold the gradient magnitude image
+    mag = cv2.threshold(mag, 2, 1, cv2.THRESH_BINARY)[1]
+
+    # Fill holes of the thresholded image
+    contour, hier = cv2.findContours(mag, cv2.RETR_CCOMP,
+        cv2.CHAIN_APPROX_SIMPLE)
+    for cnt in contour:
+        cv2.drawContours(mag, [cnt], 0, 255, -1) 
+
+    # Distance transform
+    mag = cv2.distanceTransform(mag, cv2.cv.CV_DIST_L1,
+        cv2.cv.CV_DIST_MASK_PRECISE)
+    return mag
