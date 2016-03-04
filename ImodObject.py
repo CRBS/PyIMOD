@@ -3,6 +3,7 @@ from __future__ import division
 import os
 import struct
 import operator
+import numpy as np
 from itertools import count
 from .ImodContour import ImodContour
 from .ImodMesh import ImodMesh
@@ -296,6 +297,21 @@ class ImodObject(object):
         for i in range(0, len(zsort)):
             contours_new.append(self.Contours[zsort[i][0]])
         self.Contours = contours_new
+
+    def get_z_values(self):
+        """
+        Returns the z value of every contour in the object, ordered by contour
+        index.
+
+        Returns
+        =======
+        z - A (1 x ncont) list containing the unique z value of each contour.
+        """
+        z = []
+        for iCont in range(self.nContours):
+            z.append(np.unique([int(x) for x in 
+                self.Contours[iCont].points[2::3]]).tolist()[0])
+        return z
 
     def dump(self):
         from collections import OrderedDict as od
