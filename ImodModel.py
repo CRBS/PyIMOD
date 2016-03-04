@@ -681,6 +681,7 @@ class ImodModel(object):
 
         # Run alignment-induced border removal, if desired
         if fname:
+            cdel = []
             nx, ny, nz = get_dims(fname)
             fid = open(fname, mode = "rb")
             fid.seek(1024, 0)
@@ -690,13 +691,50 @@ class ImodModel(object):
                 img = mrc_to_numpy(fid, nx, ny)
 
                 # Get the distance transform
-                dt = proc_border(img)
+                dt = proc_border(img).astype('uint8')
+                print np.max(dt)
                 toc = time.clock()
                
                 print "Slice {0} processed. Elapsed time: {1} seconds.".format(
                     iSlice + 1, toc - tic)
 
+                for iObj in range(self.nObjects):
+                    zvals = self.Objects[iObj].get_z_values()
+                    idx = np.where(np.asarray(zvals) == iSlice + 1)[0]
+                    if idx.any():
+                        for iCont in idx:
+                            pts = self.Objects[iObj].Contours[iCont].points
+                            nPts = self.Objects[iObj].Contours[iCont].nPoints
+                            pts = [int(x) for x in pts]
+                            pts = np.reshape(pts, [nPts, 3])
+                            pts[:,0] = pts[:,0] - 1
+                            pts[:,1] = ny - pts[:,1] 
+                            pts[:,[0, 1, 2]] = pts[:,[1, 0, 2]]
+                            dtvals = np.asarray([dt[pts[x,0], pts[x,1]] for x in
+                                range(nPts)])
+                            idxdt = np.where(dtvals <= 3)[0]
+                            if idxdt.any():
+                                print "Remove Object {0}".format(iObj+1)
+                                cdel.append(iObj)
             fid.close()
+
+            # Loop over all objects, and remove those that are in cdel. If remove
+            # is False, set the colors appropriately.
+            for iObj in range(self.nObjects -1, -1, -1):
+                if iObj in cdel:
+                    if remove:
+                        del(self.Objects[iObj])
+                    else:
+                        self.Objects[iObj].setColor(1, 0, 0)
+                else:
+                    if not remove:
+                        self.Objects[iObj].setColor(0, 1, 0)
+
+            # Update the number of objects and views, if remove is True.
+            if remove:
+                self.nObjects -= len(cdel)
+                if self.view_set:
+                    self.view_objvsize -= len(cdel)
 
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
