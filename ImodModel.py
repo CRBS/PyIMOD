@@ -696,13 +696,7 @@ class ImodModel(object):
                 print "Slice {0} processed. Elapsed time: {1} seconds.".format(
                     iSlice + 1, toc - tic)
 
-                for iObj in self.nObjects:
-                
-
-
             fid.close()
-
-
 
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
