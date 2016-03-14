@@ -98,7 +98,10 @@ def writeContour(imodModel, iObject, iContour, fid):
     tagStr = 'CONT'
     fid.write(tagStr)
     fid.write(struct.pack('>i', imodModel.Objects[iObject].Contours[iContour].nPoints))
-    fid.write(struct.pack('>I', imodModel.Objects[iObject].Contours[iContour].flags))
+    try:
+        fid.write(struct.pack('>I', imodModel.Objects[iObject].Contours[iContour].flags))
+    except:
+        fid.write(struct.pack('>I', 0))
     fid.write(struct.pack('>i', imodModel.Objects[iObject].Contours[iContour].type))
     fid.write(struct.pack('>i', imodModel.Objects[iObject].Contours[iContour].iSurface))
     fid.write("".join([struct.pack('>f', x) for x in imodModel.Objects[iObject].Contours[iContour].points]))
