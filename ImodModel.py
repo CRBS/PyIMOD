@@ -736,6 +736,18 @@ class ImodModel(object):
                 if self.view_set:
                     self.view_objvsize -= len(cdel)
 
+    def mergeAll(self):
+        """
+        Merges all objects into Object #1
+        """
+        for iObj in range(self.nObjects-1, 0, -1):
+            self.Objects[0].Contours = (self.Objects[0].Contours +
+                self.Objects[iObj].Contours)
+            self.Objects[0].nContours+=self.Objects[iObj].nContours
+            del(self.Objects[iObj])
+        self.nObjects = 1
+        self.view_objvsize = 1
+ 
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
             writeModelHeader(imodModel, fid)
