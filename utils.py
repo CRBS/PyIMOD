@@ -1,7 +1,7 @@
-def ImodCmd(imodModel, cmdStr):
+def ImodCmd(imodModel, cmdStr, return_output = False):
     from .ImodModel import ImodModel
     from .ImodWrite import ImodWrite
-    from subprocess import call
+    import subprocess
     import os
     # Set name for temp output to a random 30 character string
     fname = random_filename(30)
@@ -12,7 +12,9 @@ def ImodCmd(imodModel, cmdStr):
 
     # Run the command
     cmd = cmdStr + ' ' + fname + ' ' + fname
-    call(cmd.split())
+    if return_output:
+        proc = subprocess.Popen(cmd.split(), stdout = subprocess.PIPE)
+    subprocess.call(cmd.split())
 
     # Load the output file as an ImodModel object
     imodModel = ImodModel(fname)
@@ -22,7 +24,10 @@ def ImodCmd(imodModel, cmdStr):
     if os.path.isfile(fname + '~'):
         os.remove(fname + '~')
 
-    return imodModel
+    if return_output:
+        return imodModel, proc.stdout
+    else:
+        return imodModel
 
 def random_filename(length):
     import random 
