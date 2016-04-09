@@ -27,7 +27,8 @@ def ImodWrite(imodModel, fname):
 
             # Write each object's VIEW chunk
             for iObject in range(imodModel.view_objvsize):
-                writeView(imodModel, iObject, fid)
+                if imodModel.Objects[iObject].Views:
+                    writeView(imodModel, iObject, fid)
 
         # Write MINX data, if it has been created or read.
         if imodModel.minx_set:
