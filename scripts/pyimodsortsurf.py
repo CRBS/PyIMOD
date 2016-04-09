@@ -7,6 +7,9 @@ and move all split objects to the end of the model file.
 In the normal behavior of imodsortsurf, the original objects that new objects
 are split from will remain in their original positions. This is not ideal if 
 one wants to proofread only the split objects after running imodsortsurf.
+
+Appends the string '_split' to the object name of all objects that have been
+split, both new and old.
 """
 
 import sys 
@@ -28,6 +31,10 @@ mod = ImodCmd(mod, 'imodmesh -e')
 mod = ImodCmd(mod, 'imodmesh -CTs -P 10')
 mod, stdout = ImodCmd(mod, 'imodsortsurf -s', return_output = True)
 nObjectsAfter = mod.nObjects
+
+# Append '_split' to the object name of all new objects created (i.e. split).
+for iObject in range(nObjectsBefore, nObjectsAfter):
+    mod.Objects[iObject].name = mod.Objects[iObject].name + '_split'
 
 # Parse the stored output of imodsortsurf to determine how many new objects
 # were created from each input object.
@@ -51,6 +58,7 @@ objmove = sorted(objmove, reverse = True)
 objects_to_append = []
 for i in objmove:
     objects_to_append.append(mod.Objects[i])
+    objects_to_append[-1].name = objects_to_append[-1].name + '_split'
     del(mod.Objects[i])
 
 # Append the original objects that have now been split to the end of the file
