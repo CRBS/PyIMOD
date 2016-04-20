@@ -440,6 +440,8 @@ class ImodModel(object):
             c+=1
 
         self.nObjects = len(self.Objects)
+        if self.view_set:
+            self.view_objvsize = self.nObjects
 
     def filterByContourDistance(self, objRef, compStr, d_thresh, **kwargs):
         global np, cdist
