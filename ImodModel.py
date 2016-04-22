@@ -243,6 +243,28 @@ class ImodModel(object):
             self.Objects[-1].Views[-1].blue = self.Objects[-1].blue
             self.view_objvsize+=1
 
+    def removeAll(self, color = None, name = None):
+        """
+        Removes all objects that match a given property.
+        """
+        if color:
+            is_string(color, 'RGB color string')
+            rgb = [float(x) for x in color.split(',')]
+            if len(rgb) != 3:
+               raise ValueError('RGB string must have 3 values.')
+
+        for iObject in range(self.nObjects - 1, -1, -1):
+            if (color and rgb[0] == self.Objects[iObject].red and
+               rgb[1] == self.Objects[iObject].green and
+               rgb[2] == self.Objects[iObject].blue):
+                del(self.Objects[iObject])
+            if name and name == self.Objects[iObject].name:
+                del(self.Objects[iObject])
+     
+        self.nObjects = len(self.Objects)
+        if self.view_set:
+            self.view_objvsize = self.nObjects
+
     def setAll(self, color = None, linewidth = None, transparency = None,
         name = None):
         """
@@ -254,7 +276,7 @@ class ImodModel(object):
             if len(rgb) != 3:
                raise ValueError('RGB string must have 3 values.')
 
-        for iObject in range(0, self.nObjects): 
+        for iObject in range(self.nObjects): 
             if color:
                 self.Objects[iObject].setColor(rgb[0], rgb[1], rgb[2])
             if linewidth:
