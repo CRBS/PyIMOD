@@ -57,3 +57,6 @@ def set_bit(v, index, x):
     if x:
         v |= mask
     return v
+
+def get_bit(byteval, idx):
+    return ((byteval&(1<<idx))!=0);
