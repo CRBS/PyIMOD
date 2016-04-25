@@ -42,9 +42,9 @@ def get_mesh(imodModel, iObject):
     return mesh
 
 def export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout):
-    print scale, trans
     iObject+=1
     zscale = scale[2] / scale[0]
+    print scale, trans, zscale
     nameStr = 'obj{0}'.format(iObject)
     if name:
         for x in name.split():
@@ -87,8 +87,8 @@ def export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout):
     while C < nvertlist:
         x, y, z = [mesh.vertices[C+x] for x in range(3)]
         x = x * scale[0] + trans[0]
-        y = y * scale[1] + trans[1]
-        z = z * scale[2]/zscale + trans[2]
+        y = y * scale[1] + trans[1] 
+        z = z * scale[2] + trans[2]
         x = '{0:.1f}'.format(x) if x % 1 else int(x)
         y = '{0:.1f}'.format(y) if y % 1 else int(y)
         z = '{0:.1f}'.format(z) if z % 1 else int(z)
