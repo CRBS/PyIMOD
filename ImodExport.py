@@ -3,27 +3,26 @@ from __future__ import division
 import os
 from .utils import is_string
 
-def ImodExport(input, fnameout, **kwargs):
+def ImodExport(objin, fnameout, **kwargs):
     iObject = kwargs.get('object', 0)
     is_string(fnameout, 'Output filename')
-    objType = type(input).__name__
+    objType = type(objin).__name__
     mats = []
     scale = [1, 1, 1]
     trans = [0, 0, 0]
     if objType == 'ImodModel':
-        if not iObject:
-            raise ValueError('Must specify object number with object kwarg.')
-        iObject-=1
-        mesh = get_mesh(input, iObject)
-        name = input.Objects[iObject].name
-        mats.append(input.Objects[iObject].ambient / 255)
-        mats.append(input.Objects[iObject].diffuse / 255)
-        mats.append(input.Objects[iObject].specular / 255)
-        mats.append(input.Objects[iObject].shininess / 255)
-        mats.append(input.Objects[iObject].transparency)
-        if input.minx_set:
-            scale = input.minx_cscale
-            trans = input.minx_ctrans
+        if iObject >= 1:
+            iObject-=1
+        mesh = get_mesh(objin, iObject)
+        name = objin.Objects[iObject].name
+        mats.append(objin.Objects[iObject].ambient / 255)
+        mats.append(objin.Objects[iObject].diffuse / 255)
+        mats.append(objin.Objects[iObject].specular / 255)
+        mats.append(objin.Objects[iObject].shininess / 255)
+        mats.append(objin.Objects[iObject].transparency)
+        if objin.minx_set:
+            scale = objin.minx_cscale
+            trans = objin.minx_ctrans
     else:
         raise ValueError('input is not a valid class type.')
 
@@ -43,6 +42,7 @@ def get_mesh(imodModel, iObject):
     return mesh
 
 def export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout):
+    print scale, trans
     iObject+=1
     zscale = scale[2] / scale[0]
     nameStr = 'obj{0}'.format(iObject)
