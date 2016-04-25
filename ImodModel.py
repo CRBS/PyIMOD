@@ -87,15 +87,26 @@ class ImodModel(object):
         view_plax = 5,
         view_objvsize = 0,
         minx_set = 0,
+        minx_oscale = [0, 0, 0],
+        minx_otrans = [0, 0, 0],
+        minx_orot = [0, 0, 0],
+        minx_cscale = [0, 0, 0],
+        minx_ctrans = [0, 0, 0],
+        minx_crot = [0, 0, 0], 
         **kwargs):
             self.Objects = []
             self.__dict__.update(kwargs)
             self.__dict__.update(locals())
+            # If input filename is a string, attempt to read the model file. If
+            # it is a pre-existing ImodModel object, read and store its
+            # attributes to the new instance.
             if filename is None: 
                 self.filename = ''
-            else:
+            elif type(filename).__name__ == 'str':
                 self.filename = filename
                 self.read_file()
+            elif type(filename).__name__ == 'ImodModel':
+                self.__dict__.update(filename.__dict__)
             self.pixelSizeZ = self.zScale * self.pixelSizeXY
             self.setUnitsStr()
             self.getColormap()
@@ -771,6 +782,10 @@ class ImodModel(object):
             del(self.Objects[iObj])
         self.nObjects = 1
         self.view_objvsize = 1
+
+    def setAttributes(self, modin):
+        for dictionary in modin:
+            print dictionary    
  
     def write(self, fname):
         with open(fname, mode = "wb") as fid:
