@@ -7,7 +7,7 @@ import numpy as np
 from itertools import count
 from .ImodContour import ImodContour
 from .ImodMesh import ImodMesh
-from .utils import is_integer, is_string, set_bit
+from .utils import is_integer, is_string, set_bit, get_bit
 
 class ImodObject(object):
     _ids = count(0)
@@ -18,6 +18,7 @@ class ImodObject(object):
         debug = 0,
         name = '',
         nContours = 0,
+        objType = 'closed',
         flags = 0, 
         axis = 0,
         drawMode = 1,
@@ -66,6 +67,7 @@ class ImodObject(object):
                 self.read_file()
             else:
                 self.set_color_from_cmap()
+            self.getObjectType()
 
     def read_file(self):
         fid = self.fid
@@ -199,7 +201,7 @@ class ImodObject(object):
         is_string(objType, 'Object Type')
         if objType == 'scattered':
             self.flags = set_bit(self.flags, 9, 1)
-            self.flags = set_bit(self.flags, 3, 0)
+            self.flags = set_bit(self.flags, 3, 1)
         elif objType == 'open':
             self.flags = set_bit(self.flags, 9, 0)
             self.flags = set_bit(self.flags, 3, 1)
@@ -212,6 +214,17 @@ class ImodObject(object):
         # Update the ImodView flags
         if self.Views:
             self.Views[0].flags = self.flags
+        self.getObjectType()
+
+    def getObjectType(self):
+        bit9 = get_bit(self.flags, 9)
+        bit3 = get_bit(self.flags, 3)
+        print bit9, bit3
+        if bit3 and bit9:
+            self.objType = 'scattered'
+        if bit3 and not bit9:
+            self.objType = 'open'
+      
 
     def setMeshOn(self):
         self.flags = set_bit(self.flags, 8, 1)
