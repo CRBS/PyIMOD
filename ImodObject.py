@@ -219,12 +219,10 @@ class ImodObject(object):
     def getObjectType(self):
         bit9 = get_bit(self.flags, 9)
         bit3 = get_bit(self.flags, 3)
-        print bit9, bit3
         if bit3 and bit9:
             self.objType = 'scattered'
         if bit3 and not bit9:
             self.objType = 'open'
-      
 
     def setMeshOn(self):
         self.flags = set_bit(self.flags, 8, 1)
