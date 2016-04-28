@@ -324,6 +324,18 @@ class ImodObject(object):
                 self.Contours[iCont].points[2::3]]).tolist()[0])
         return z
 
+    def hasMissingSlices(self):
+        """ 
+        Returns True if the object has contours on all slices ranging from Zmin
+        to Zmax. Otherwise, returns False.
+        """
+        zvals = self.get_z_values()
+        zvals_unique = sorted(np.unique(zvals))
+        zmin = zvals_unique[0]
+        zmax = zvals_unique[-1]
+        comp = np.asarray(range(zmin, zmax+1))
+        return np.array_equal(zvals_unique, comp):
+
     def dump(self):
         from collections import OrderedDict as od
         for key, value in od(sorted(self.__dict__.items())).iteritems():
