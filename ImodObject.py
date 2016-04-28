@@ -334,7 +334,7 @@ class ImodObject(object):
         zmin = zvals_unique[0]
         zmax = zvals_unique[-1]
         comp = np.asarray(range(zmin, zmax+1))
-        return np.array_equal(zvals_unique, comp):
+        return np.array_equal(zvals_unique, comp)
 
     def dump(self):
         from collections import OrderedDict as od
