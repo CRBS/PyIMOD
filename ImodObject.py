@@ -324,6 +324,18 @@ class ImodObject(object):
                 self.Contours[iCont].points[2::3]]).tolist()[0])
         return z
 
+    def get_contours_per_z(self):
+        """
+        Returns a list in which each entry is the number of contours on a given
+        z slice of the object, sorted in ascending order
+        """
+        z = np.asarray(self.get_z_values())
+        contlist = []
+        for i in range(z[0], z[-1]+1):
+            idx = np.where(z == i)
+            contlist.append(len(idx[0]))
+        return contlist
+
     def hasMissingSlices(self):
         """ 
         Returns True if the object has contours on all slices ranging from Zmin
