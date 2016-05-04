@@ -424,13 +424,13 @@ class ImodModel(object):
         statement for the number of unique slices present.
         """ 
         is_string(compStr, 'Comparison string')
-        is_integer(nCton, 'Number of contours')
+        is_integer(nSlices, 'Number of contours')
         if not opsDict.has_key(compStr):
             raise ValueError('{0} is not a valid operator'.format(compStr))
         
         for iObj in range(self.nObjects -1, -1, -1):
             zlist = self.Objects[iObj].get_z_values()
-            nz = np.unique(np.asarray(zlist))
+            nz = len(np.unique(np.asarray(zlist)))
             if not opsDict[compStr] (nz, nSlices):
                 if remove:
                     del(self.Objects[iObj])
