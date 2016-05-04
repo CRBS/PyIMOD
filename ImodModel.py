@@ -418,6 +418,34 @@ class ImodModel(object):
             if self.view_set:
                 self.view_objvsize = len(self.Objects)
 
+    def filterByNSlices(self, compStr, nSlices, remove = True):
+        """
+        Removes all objects that do not satisfy the supplied conditional 
+        statement for the number of unique slices present.
+        """ 
+        is_string(compStr, 'Comparison string')
+        is_integer(nCton, 'Number of contours')
+        if not opsDict.has_key(compStr):
+            raise ValueError('{0} is not a valid operator'.format(compStr))
+        
+        for iObj in range(self.nObjects -1, -1, -1):
+            zlist = self.Objects[iObj].get_z_values()
+            nz = np.unique(np.asarray(zlist))
+            if not opsDict[compStr] (nz, nSlices):
+                if remove:
+                    del(self.Objects[iObj])
+                else:
+                    self.Objects[iObj].setColor(1, 0, 0)
+            else:
+                if not remove:
+                    self.Objects[iObj].setColor(0, 1, 0)
+
+        # Update # of objects and number of views, if these were changed.
+        if remove:
+            self.nObjects = len(self.Objects)
+            if self.view_set:
+                self.view_objvsize = len(self.Objects)
+
     def filterByMeshDistance(self, objRef, compStr, d_thresh, **kwargs):
         """
         Removes all objects that do not satisfy a distance criterion from a
