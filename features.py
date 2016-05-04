@@ -111,10 +111,10 @@ def imodinfo_v(fname, iObj, ncont):
             C+=1
             M[C,0] = line.split()[2] #N points
         elif "Closed/Open length" in line:
-            M[C,1] = line.split()[3] #Closed length
-            M[C,2] = line.split()[5] #Open length
+            M[C,1] = float(line.split()[3]) / 1000  #Closed length
+            M[C,2] = float(line.split()[5]) / 1000 #Open length
         elif "Enclosed Area" in line:
-            M[C,3] = line.split()[3] #Area
+            M[C,3] = float(line.split()[3]) / (1000 **2) #Area
         elif "Center of Mass" in line:
             M[C,4] = line.split()[4][1:-1] #Centroid X
             M[C,5] = line.split()[5][0:-1] #Centroid Y
