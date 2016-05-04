@@ -13,6 +13,7 @@ from .ImodWrite import ImodWrite
 from .ImodView import ImodView
 from .mrc import get_dims, mrc_to_numpy
 from .utils import is_integer, is_string
+from .features import *
 
 class ImodModel(object):
     global unitDict, opsDict
@@ -432,6 +433,36 @@ class ImodModel(object):
             zlist = self.Objects[iObj].get_z_values()
             nz = len(np.unique(np.asarray(zlist)))
             if not opsDict[compStr] (nz, nSlices):
+                if remove:
+                    del(self.Objects[iObj])
+                else:
+                    self.Objects[iObj].setColor(1, 0, 0)
+            else:
+                if not remove:
+                    self.Objects[iObj].setColor(0, 1, 0)
+
+        # Update # of objects and number of views, if these were changed.
+        if remove:
+            self.nObjects = len(self.Objects)
+            if self.view_set:
+                self.view_objvsize = len(self.Objects)
+
+    def filterByContourArea(self, compStr, areaComp, remove = True):
+        """
+        Removes all objects taht do not satisfy the supplied conditional
+        statement for the maximum area of a contour in the given object.
+        """
+        is_string(compStr, 'Comparison string')
+        is_integer(areaComp, 'Maximum area')
+        if not opsDict.has_key(compStr):
+            raise ValueError('{0} is not a valid operator'.format(compStr))
+    
+        for iObj in range(self.nObjects -1, -1, -1):
+            M, vol, sa = imodinfo_v(self.filename, iObj,
+                self.Objects[iObj].nContours)
+            amax = np.max(M[:, 3])
+            print iObj+1, amax
+            if not opsDict[compStr] (amax, areaComp):
                 if remove:
                     del(self.Objects[iObj])
                 else:
