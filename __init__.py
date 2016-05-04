@@ -6,4 +6,5 @@ from ImodWrite import ImodWrite
 from ImodExport import ImodExport
 from ImodGen import *
 from mrc import *
+from features import *
 from utils import ImodCmd
