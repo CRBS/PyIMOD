@@ -4,9 +4,7 @@ import os
 import struct
 import time
 import cv2
-
 import numpy as np
-
 from .ImodObject import ImodObject
 from .ImodContour import ImodContour
 from .ImodWrite import ImodWrite
@@ -16,9 +14,55 @@ from .utils import is_integer, is_string
 from .features import *
 
 class ImodModel(object):
+    """
+    Python class that reads and manipulates IMOD model files. IMOD is a set of
+    image processing and modeling programs used principally by the microscopy
+    community for generating 3D reconstructions (http://bio3d.colorado.edu/imod)
+
+    The IMOD model file contains point, contour, object, and mesh data that can
+    be overlaid on 3D image stacks and quantified. Model files are stored in the
+    binary file format specified here: 
+
+    http://bio3d.colorado.edu/imod/doc/binspec.html.
+
+    The pyimod set of IMOD classes were created to give an automated way to 
+    alter model properties such as color and name and to filter models by 
+    certain criteria (i.e. number of contours, contour area, volume, sphericity,
+    etc).
+
+    ImodModel instances can be created in two different ways:
+
+    1. By loading an existing IMOD model file:
+
+    mod = pyimod.ImodModel('filename.mod')
+
+    2. By creating an empty IMOD model file:
+
+    mod = pyimod.ImodModel()
+
+    The latter will create an empty model file with default settings and
+    properties.
+    """
+
+    'Class used for reading and manipulating IMOD model files'
+
+    # Declare dictionaries:
+    #    1. unitDict: Correspondence between unit strings and the values they
+    #       are stored as in the Imod binary model file.
+    #    2. opsDict: Correspondence between inequality operators, input as 
+    #       strings, and lambda functions that return the corresponding Boolean
+    #       value, depending on whether the inequality is true. These are mostly
+    #       used for filtering ImodModel instances based on object parameters.
     global unitDict, opsDict
-    unitDict = {'pix': 0, 'km': 3, 'm': 1, 'cm': -2, 'mm': -3, 'microns': -6,
-        'nm': -9, 'Angstroms': -10, 'pm': -12}
+    unitDict = {'pix': 0,
+                'km': 3,
+                'm': 1,
+                'cm': -2,
+                'mm': -3,
+                'microns': -6,
+                'nm': -9,
+                'Angstroms': -10,
+                'pm': -12}
 
     opsDict = {'>': (lambda x,y: x>y),
           '<': (lambda x,y: x<y),
@@ -98,6 +142,7 @@ class ImodModel(object):
             self.Objects = []
             self.__dict__.update(kwargs)
             self.__dict__.update(locals())
+
             # If input filename is a string, attempt to read the model file. If
             # it is a pre-existing ImodModel object, read and store its
             # attributes to the new instance.
