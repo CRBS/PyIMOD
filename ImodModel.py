@@ -60,8 +60,10 @@ class ImodModel(object):
                 'cm': -2,
                 'mm': -3,
                 'microns': -6,
+                'um': -6,
                 'nm': -9,
                 'Angstroms': -10,
+                'A': -10,
                 'pm': -12}
 
     opsDict = {'>': (lambda x,y: x>y),
@@ -494,7 +496,7 @@ class ImodModel(object):
 
     def filterByContourArea(self, compStr, areaComp, remove = True):
         """
-        Removes all objects taht do not satisfy the supplied conditional
+        Removes all objects that do not satisfy the supplied conditional
         statement for the maximum area of a contour in the given object.
         """
         is_string(compStr, 'Comparison string')
@@ -516,6 +518,33 @@ class ImodModel(object):
                 if not remove:
                     self.Objects[iObj].setColor(0, 1, 0)
 
+        # Update # of objects and number of views, if these were changed.
+        if remove:
+            self.nObjects = len(self.Objects)
+            if self.view_set:
+                self.view_objvsize = len(self.Objects)
+
+    def filterByVolume(self, compStr, volumeComp, remove = True):
+        """
+        Removes all objects that do not satisfy the supplied conditional
+        statement for the maximum volume of an object in the given model.
+        """
+        is_string(compStr, 'Comparison string')
+        if not opsDict.has_key(compStr):
+            raise ValueError('{0} is not a valid operator'.format(compStr))
+
+        for iObj in range(self.nObjects -1, -1, -1):
+            _, vol, _ = imodinfo_v(self.filename, iObj,
+                self.Objects[iObj].nContours)
+            if not opsDict[compStr] (vol, volumeComp):
+                if remove:
+                    del(self.Objects[iObj])
+                else:
+                    self.Objects[iObj].setColor(1, 0, 0)
+            else:
+                if not remove:
+                    self.Objects[iObj].setColor(0, 1, 0)
+         
         # Update # of objects and number of views, if these were changed.
         if remove:
             self.nObjects = len(self.Objects)
@@ -995,3 +1024,13 @@ def proc_border(img):
     mag = cv2.distanceTransform(mag, cv2.cv.CV_DIST_L1,
         cv2.cv.CV_DIST_MASK_PRECISE)
     return mag
+
+def convert_units(val_in, units_in, units_out, exp = 1):
+    if unitDict.has_key(units_in):
+        exp_in = unitDict[units_in]
+
+    if unitDict.has_key(units_out):
+        exp_out = unitDict[units_out]
+
+    val_out = val_in * ((10 ** -exp_out) / (10 ** -exp_in)) ** exp 
+    return val_out
