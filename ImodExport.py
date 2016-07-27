@@ -44,7 +44,9 @@ def get_mesh(imodModel, iObject):
 def export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout):
     iObject+=1
     zscale = scale[2] / scale[0]
-    print scale, trans, zscale
+    print "VRML scale: {}".format(scale)
+    print "VRML translation: {}".format(trans)
+    print "VRML Z-scale: {}".format(zscale)
     nameStr = 'obj{0}'.format(iObject)
     if name:
         for x in name.split():
@@ -84,6 +86,7 @@ def export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout):
     # Write VRML 2.0 mesh vertex data
     C = 0
     nvertlist = len(mesh.vertices)
+    print "VRML # of vertices: {}".format(nvertlist)
     while C < nvertlist:
         x, y, z = [mesh.vertices[C+x] for x in range(3)]
         x = x * scale[0] + trans[0]
@@ -100,6 +103,7 @@ def export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout):
     # Write VRML 2.0 mesh index data
     C = 0
     nindexlist = len(mesh.indices)
+    print "VRML # of indices: {}".format(nindexlist)
     fid.write('        coordIndex [   # connect triangles\n')
     while C < nindexlist:
         if mesh.indices[C] < 0:
