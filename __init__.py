@@ -1,4 +1,4 @@
-from ImodModel import ImodModel
+from ImodModel import *
 from ImodObject import ImodObject
 from ImodContour import ImodContour
 from ImodMesh import ImodMesh
