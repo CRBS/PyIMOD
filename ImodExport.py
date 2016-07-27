@@ -23,7 +23,7 @@ def ImodExport(objin, fnameout, **kwargs):
 
         # Update scale and trans based on MINX info.
         if objin.minx_set:
-            scale = objin.minx_cscale
+            scale = list(objin.minx_cscale)
             trans = objin.minx_ctrans
 
         # If model header info is provided, override the scale provided by MINX
@@ -31,11 +31,19 @@ def ImodExport(objin, fnameout, **kwargs):
         # check that the units are set to anything but pixels, which has a value
         # of zero. 
         if objin.units:
+            TOL = 1
+            # Convert scales to Angstroms
             scalexy = objin.pixelSizeXY / (10 ** -objin.units) * (10 ** 10)
             scalez = objin.pixelSizeZ / (10 ** -objin.units) * (10 ** 10)
+            dxy = scalexy - scale[0]
+            dz = scalez - scale[2]
             scale[0] = scalexy
             scale[1] = scalexy
             scale[2] = scalez
+            if dxy > TOL or dz > TOL:
+                print ("WARNING: Scale information of the model and MRC stack "
+                      "it was created on are significantly different. The "
+                      "model will not load well on the MRC stack in Amira.")
     else:
         raise ValueError('input is not a valid class type.')
 
