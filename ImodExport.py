@@ -20,9 +20,22 @@ def ImodExport(objin, fnameout, **kwargs):
         mats.append(objin.Objects[iObject].specular / 255)
         mats.append(objin.Objects[iObject].shininess / 255)
         mats.append(objin.Objects[iObject].transparency)
+
+        # Update scale and trans based on MINX info.
         if objin.minx_set:
             scale = objin.minx_cscale
             trans = objin.minx_ctrans
+
+        # If model header info is provided, override the scale provided by MINX
+        # info and use this instead. To check if model header has been given,
+        # check that the units are set to anything but pixels, which has a value
+        # of zero. 
+        if objin.units:
+            scalexy = objin.pixelSizeXY / (10 ** -objin.units) * (10 ** 10)
+            scalez = objin.pixelSizeZ / (10 ** -objin.units) * (10 ** 10)
+            scale[0] = scalexy
+            scale[1] = scalexy
+            scale[2] = scalez
     else:
         raise ValueError('input is not a valid class type.')
 
