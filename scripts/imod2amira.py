@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
     print "\n==========\n"
 
-    # Open Amira TCL script to write to
+    # Open Amira TCL script to write to 
     file_tcl = os.path.join(opts.path_out, file_in.split('.')[0] + ".hx")
     fid = open(file_tcl, 'a+')
 
@@ -142,8 +142,12 @@ if __name__ == '__main__':
             continue
 
         # Construct output VRML filename for the current object
-        fname_str = ("obj_" + str(iobj+1).zfill(len(str(modin.nObjects))) + "_" +
-                    "_".join(iobj_name.split()) + ".wrl")
+        fname_str = "obj_" + str(iobj+1).zfill(len(str(modin.nObjects)))
+        if len(iobj_name):
+            fname_str += ("_" + "_".join(iobj_name.split()))
+        fname_str += ".wrl"
+        #fname_str = ("obj_" + str(iobj+1).zfill(len(str(modin.nObjects))) + "_" +
+        #            "_".join(iobj_name.split()) + ".wrl")
         fname_out = os.path.join(opts.path_out, fname_str)
         print "Output file name: {}".format(fname_out) 
 
