@@ -127,6 +127,7 @@ if __name__ == '__main__':
     for iobj in opts.objnumbers:
         
         # Get pertinent object properties
+        iobj_type = modin.Objects[iobj].objType
         iobj_nmeshes = modin.Objects[iobj].nMeshes
         iobj_name = modin.Objects[iobj].name
         iobj_rgb = []
@@ -143,7 +144,7 @@ if __name__ == '__main__':
 
         # Check that meshes exist for the given object. If not, print warning
         # and skip.
-        if not iobj_nmeshes:
+        if not iobj_nmeshes and iobj_type is not 'scattered':
             print ("WARNING: Object {} does not contain any mesh data. "
                   "Skipping.\n\n==========\n".format(iobj+1))
             continue
