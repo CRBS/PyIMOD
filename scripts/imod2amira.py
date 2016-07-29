@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 
+"""
+Converts objects in an input IMOD model file into VRML files that are correctly
+scaled for input to Amira. By default, all objects will be converted, but the
+user can optionally select a subset of objects to be converted. Also by default,
+an Amira Tcl script will be written to open each written VRML file in Amira,
+convert it to the Open Inventor format, generate a Surface View, and set its 
+color and transparency to be the same as those in the model file. This behavior
+can be turned off by the --no_script flag.
+"""
+
 from __future__ import division
 
 import os
@@ -28,6 +38,14 @@ def parse_args():
                         "commas and dashes). If multiple objects are being "
                         "used, the list of object numbers must be enclosed by "
                         "single quotes, e.g. --objects '1,2,5-10'")
+    p.add_option("--no_script",
+                 dest = "no_script",
+                 action = "store_true",
+                 default = False,
+                 help = "When this argument is supplied, an Amira .hx script "
+                        "will not be written for the input file. This is most "
+                        "useful when you just want to write VRML files, for "
+                        "example, to add to an existing Amira script.")
     p.add_option("--launch_amira",
                  dest = "launch_amira",
                  action = "store_true",
@@ -61,6 +79,12 @@ def usage(errstr):
     exit(1)
 
 def write_tcl_load_vrml(fid, vrml_in, iobj, rgb, transp):
+
+    """
+    Writes Amira Tcl code to an opened text file, specified by the file handle
+    fid, for the output VRML file whose name is given by vrml_in.
+    """
+
     fid.write("set base [file tail {}]\n".format(vrml_in))
     fid.write("set base [string trimright $base \".wrl\"]\n")
     fid.write("[load {}] setLabel $base\n".format(vrml_in))
@@ -98,6 +122,9 @@ if __name__ == '__main__':
     if not os.path.isdir(opts.path_out):
         os.makedirs(opts.path_out)
 
+    if opts.launch_amira and opts.no_script:
+        usage("Flags --launch_amira and --no_script cannot be used together.")
+
     # Load input model file
     print "imod2amira"
     print "Loading {}...".format(file_in)
@@ -119,9 +146,10 @@ if __name__ == '__main__':
     print "\n==========\n"
 
     # Open Amira TCL script to write to 
-    file_tcl = os.path.abspath(os.path.join(opts.path_out, 
-        file_in.split('.')[0] + ".hx"))
-    fid = open(file_tcl, 'a+')
+    if not opts.no_script:
+        file_tcl = os.path.abspath(os.path.join(opts.path_out, 
+            file_in.split('.')[0] + ".hx"))
+        fid = open(file_tcl, 'a+')
 
     # Loop over objects
     for iobj in opts.objnumbers:
@@ -165,9 +193,11 @@ if __name__ == '__main__':
 
         print "SUCCESS!\n\n==========\n"
 
-        write_tcl_load_vrml(fid, fname_out, iobj + 1, iobj_rgb, iobj_transp)
+        if not opts.no_script:
+            write_tcl_load_vrml(fid, fname_out, iobj + 1, iobj_rgb, iobj_transp)
 
-    fid.close()
+    if not opts.no_script:
+        fid.close()
 
     # Launch Amira
     if opts.launch_amira:
