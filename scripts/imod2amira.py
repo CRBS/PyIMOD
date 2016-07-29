@@ -28,6 +28,12 @@ def parse_args():
                         "commas and dashes). If multiple objects are being "
                         "used, the list of object numbers must be enclosed by "
                         "single quotes, e.g. --objects '1,2,5-10'")
+    p.add_option("--launch_amira",
+                 dest = "launch_amira",
+                 action = "store_true",
+                 default = False,
+                 help = "Launches Amira automatically after conversion. Runs "
+                        "the Amira binary specified by --amira_path.")
     p.add_option("--amira_path",
                  dest = "path_amira",
                  metavar = "PATH",
@@ -113,7 +119,8 @@ if __name__ == '__main__':
     print "\n==========\n"
 
     # Open Amira TCL script to write to 
-    file_tcl = os.path.join(opts.path_out, file_in.split('.')[0] + ".hx")
+    file_tcl = os.path.abspath(os.path.join(opts.path_out, 
+        file_in.split('.')[0] + ".hx"))
     fid = open(file_tcl, 'a+')
 
     # Loop over objects
@@ -146,9 +153,7 @@ if __name__ == '__main__':
         if len(iobj_name):
             fname_str += ("_" + "_".join(iobj_name.split()))
         fname_str += ".wrl"
-        #fname_str = ("obj_" + str(iobj+1).zfill(len(str(modin.nObjects))) + "_" +
-        #            "_".join(iobj_name.split()) + ".wrl")
-        fname_out = os.path.join(opts.path_out, fname_str)
+        fname_out = os.path.abspath(os.path.join(opts.path_out, fname_str))
         print "Output file name: {}".format(fname_out) 
 
         # Convert to VRML
@@ -164,5 +169,6 @@ if __name__ == '__main__':
     fid.close()
 
     # Launch Amira
-    cmd = "{0} {1}".format(opts.path_amira, file_tcl)
-    subprocess.call(cmd.split())
+    if opts.launch_amira:
+        cmd = "{0} {1}".format(opts.path_amira, file_tcl)
+        subprocess.call(cmd.split())
