@@ -107,6 +107,15 @@ def writeContour(imodModel, iObject, iContour, fid):
     fid.write(struct.pack('>i', imodModel.Objects[iObject].Contours[iContour].iSurface))
     fid.write("".join([struct.pack('>f', x) for x in imodModel.Objects[iObject].Contours[iContour].points]))
 
+    # Write SIZE chunk, if necessary
+    if imodModel.Objects[iObject].Contours[iContour].size_set:
+        npts = len(imodModel.Objects[iObject].Contours[iContour].size_vals)
+        fid.write('SIZE') 
+        fid.write(struct.pack('>i', npts * 4))
+        for i in range(npts):
+            fid.write(struct.pack('>f', 
+                imodModel.Objects[iObject].Contours[iContour].size_vals[i]))
+
 def writeMesh(imodModel, iObject, iMesh, fid):
     tagStr = 'MESH'
     fid.write(tagStr)
