@@ -169,6 +169,12 @@ def export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout):
                 pt_coords[1] = pt_coords[1] * scale[1] + trans[1]
                 pt_coords[2] = pt_coords[2] * scale[2] + trans[2]
 
+                # Get the point radius
+                if mesh.Contours[icont].size_set:
+                    radius = mesh.Contours[icont].size_vals[ipoint]
+                else:
+                    radius = mesh.pdrawsize 
+
                 fid.write('        DEF {0}_cont{1}_pt{2} Transform {{\n'.format(
                     nameStr, icont+1, ipoint+1))
                 fid.write('          translation {0} {1} {2}\n'.format(
@@ -178,7 +184,7 @@ def export_vrml2(mesh, iObject, name, mats, scale, trans, fnameout):
                     nameStr))
                 fid.write(('              geometry DEF cont_{0}_{1} Sphere '
                            '{{ radius {2} }} }} ]\n'.format(icont+1, ipoint+1,
-                           mesh.pdrawsize * scale[0])))
+                           radius * scale[0])))
                 fid.write('        }\n')
         fid.write('      ]\n')
         fid.write('    }\n')
