@@ -101,23 +101,10 @@ class ImodObject(object):
                 print datatype
             if datatype == 'CONT':
                 self.Contours.append(ImodContour(fid, debug = self.debug))
-                iContour = iContour + 1
-                datatype_next = fid.read(4)
-                if datatype_next == 'SIZE':
-                    if self.debug == 1:
-                        print datatype_next
-                    psize = struct.unpack('>l', fid.read(4))[0]
-                    blah = struct.unpack('>f', fid.read(4))[0]
-                    print "SIZE!!", psize, blah   
-                else:
-                    fid.seek(-4, 1)
+                iContour += 1
             elif datatype == 'MESH':
                 self.Meshes.append(ImodMesh(fid, debug = self.debug))
-                iMesh = iMesh + 1
-            #elif datatype == 'SIZE':
-            #    psize = struct.unpack('>l', fid.read(4))[0]
-            #    blah = struct.unpack('>f', fid.read(4))[0] 
-            #    print "SIZE!!", psize, blah 
+                iMesh += 1
 
         while True:
             datatype = fid.read(4)
