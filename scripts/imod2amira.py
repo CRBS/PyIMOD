@@ -85,6 +85,9 @@ def write_tcl_load_vrml(fid, vrml_in, iobj, rgb, transp):
     fid, for the output VRML file whose name is given by vrml_in.
     """
 
+    # Escape spaces in path name
+    vrml_in = vrml_in.replace(' ', '\ ')
+
     fid.write("set base [file tail {}]\n".format(vrml_in))
     fid.write("set base [string trimright $base \".wrl\"]\n")
     fid.write("[load {}] setLabel $base\n".format(vrml_in))
