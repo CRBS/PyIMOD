@@ -3,7 +3,6 @@ from __future__ import division
 import os
 import struct
 import time
-import cv2
 import numpy as np
 from .ImodObject import ImodObject
 from .ImodContour import ImodContour
@@ -998,6 +997,8 @@ def parse_name_str(nstr):
         raise ValueError('Invalid name string {0}'.format(nstr))
 
 def proc_border(img):
+    import cv2
+    
     # Compute horizontal Sobel gradient
     sobelx = cv2.Sobel(img, cv2.CV_64F, 1, 0)
     sobelx = np.absolute(sobelx)
