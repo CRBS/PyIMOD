@@ -10,9 +10,11 @@ class ImodContour(object):
         iSurface = 0,
         points = [],
         pointSizes = [],
+        size_set = 0,
         **kwargs):
             self.__dict__.update(kwargs)
             self.__dict__.update(locals())
+            self.size_vals = []
             if self.fid:
                 self.read_file()    
 
@@ -24,6 +26,17 @@ class ImodContour(object):
         self.iSurface = struct.unpack('>l', fid.read(4))[0]
         self.points = struct.unpack('>{0}f'.format(3 * self.nPoints),
             fid.read(12 * self.nPoints))
+
+        # Read the next data chunk. If it is SIZE, then set size_set to one and
+        # read the values from the binary file. If not, seek back and continue.
+        datatype = fid.read(4)
+        if datatype == 'SIZE':
+            self.size_set = 1
+            psize = struct.unpack('>l', fid.read(4))[0]
+            for i in range(0, psize, 4):
+                self.size_vals.append(struct.unpack('>f', fid.read(4))[0])
+        else:
+            fid.seek(-4, 1)
         return self
 
     def dump(self):
