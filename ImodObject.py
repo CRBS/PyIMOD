@@ -112,6 +112,10 @@ class ImodObject(object):
                 if self.debug == 1:
                     print datatype
                 self.read_imat(fid)
+            elif datatype == 'CLIP':
+                if self.debug == 1:
+                    print datatype
+                self.read_clip(fid)
             elif datatype == 'MEPA':
                 self.mepa_set = 1
                 self.mepa_nBytes = struct.unpack('>i', fid.read(4))[0]
@@ -128,6 +132,13 @@ class ImodObject(object):
             self.dump()
 
         return self
+
+    def read_clip(self, fid):
+        """  
+        Skip reading of CLIP data chunks 
+        """
+        nbytes = struct.unpack('>l', fid.read(4))[0]
+        fid.seek(nbytes, 1)
 
     def read_imat(self, fid):
         fid.seek(4, 1)
